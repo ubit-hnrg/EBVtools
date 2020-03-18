@@ -8,13 +8,20 @@ def get_args():
     parser = argparse.ArgumentParser(description='given a list of SRA ids, get its metadata info and download the associated RUN ids')
     parser.add_argument('--samplefile','-f',dest = 'samplefile',help='SRA list')
     parser.add_argument('--outpath','-o',dest = 'outpath',help='SRA list')
+    
+    parser.add_argument('--download', dest='download', action='store_true')
+    parser.add_argument('--no-download', dest='download', action='store_false')
+    parser.set_defaults(download=True)
     args = parser.parse_args()
 
     ifile = args.samplefile
     opath = args.outpath
-    return(ifile,opath)
+    download = args.download
+    return(ifile,opath,download)
 
 def params(ifile,opath, Filter = True):
+    if not os.path.exists(opath):
+        os.makedirs(opath   )
     base = os.path.basename(ifile)
     base = base.split('.')[0]
 
@@ -22,8 +29,8 @@ def params(ifile,opath, Filter = True):
     sras = idlist[0].unique()
     samplequery = ' '.join(sras)
     query=opath+'/'+base
-    os.system('pysradb srr-to-srp %s --detailed --expand --saveto %s.tsv'%(samplequery,query))
-    os.system('pysradb srr-to-srp %s --saveto %s.tsv'%(samplequery,query))
+    os.system('pysradb srr-to-srp %s --expand --saveto %s.tsv'%(samplequery,query))
+    #os.system('pysradb srr-to-srp %s --detailed --expand --saveto %s.tsv'%(samplequery,query))
     df = pd.read_table('%s.tsv'%query)
     df.to_excel('%s.xlsx'%query)
   
@@ -63,9 +70,10 @@ def download(run_acc,opath,gzip = True):
     return()
 
 def main():
-    ifile,opath = get_args()
+    ifile,opath,download = get_args()
     run_acc = params(ifile,opath)
-    download(run_acc,opath)
+    if(download):
+        download(run_acc,opath)
 
 if __name__ == '__main__':
     main()
