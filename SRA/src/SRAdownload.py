@@ -36,7 +36,6 @@ def params(ifile,opath, Filter = True):
 
 def download(run_acc,opath,gzip = True):
     for racc in run_acc:
-        print('downloading %s'%racc)
         outp=opath + '/' + racc
         logfile = outp + '/' + racc + '.log'
         ofiles = outp +'/' + racc + '*fastq'
@@ -46,7 +45,7 @@ def download(run_acc,opath,gzip = True):
         if len(glob.glob(ofiles+'.gz'))>0:
             print('skiping sample %s'%racc)
             continue
-
+        print('downloading %s'%racc)    
         start = timeit.default_timer()
         os.system('fasterq-dump -S -O %s %s 2>%s'%(outp,racc,logfile))
         end = timeit.default_timer()
