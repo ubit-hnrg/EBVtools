@@ -45,7 +45,7 @@ def download(run_acc,opath,gzip = True):
 
         if len(glob.glob(ofiles+'.gz'))>0:
             print('skiping sample %s'%racc)
-            return()
+            continue
 
         start = timeit.default_timer()
         os.system('fasterq-dump -S -O %s %s 2>%s'%(outp,racc,logfile))
