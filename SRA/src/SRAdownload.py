@@ -49,7 +49,7 @@ def params(ifile,opath, Filter = True):
         #run_acc = df[df['experiment_accession'] == 'ERX588931'].run_accession 
     return(run_acc)
 
-def download(run_acc,opath,gzip = True,prefetch=False):
+def download_function(run_acc,opath,gzip = True,prefetch=False):
     for racc in run_acc:
         outp=opath + '/' + racc
         logfile = outp + '/' + racc + '.log'
@@ -98,7 +98,7 @@ def main():
     ifile,opath,download,prefetch = get_args()
     run_acc = params(ifile,opath)
     if(download):
-        download(run_acc,opath,prefetch=prefetch)
+        download_function(run_acc,opath,prefetch=prefetch)
 
 if __name__ == '__main__':
     main()
