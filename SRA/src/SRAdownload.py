@@ -62,21 +62,7 @@ def download(run_acc,opath,gzip = True,prefetch=False):
             continue
         print('downloading %s'%racc)    
                     
-        if(not prefetch):
-            start = timeit.default_timer()
-            os.system('fasterq-dump -S -O %s %s 2>%s'%(outp,racc,logfile))
-            end = timeit.default_timer()
-            if(gzip):
-                os.system('gzip %s'%ofiles)
-            endgzip = timeit.default_timer()
-            dt1= (end -start)/60
-            dt2 = (endgzip - end)/60
-
-            with open(logfile, 'a') as file:
-                file.write('downloading time (minutes): %.2f'%dt1)
-                file.write('\n')
-                file.write('gzip time (minutes): %.2f'%dt2)
-        else:
+        if(prefetch):
             start = timeit.default_timer()
             os.system('prefetch -O %s %s 2>%s'%(outp,racc,logfile))
             srafile=outp + '/'+racc+'.sra'
@@ -91,6 +77,20 @@ def download(run_acc,opath,gzip = True,prefetch=False):
                 file.write('downloading SRA prefetch time (minutes): %.2f'%dt1)
                 file.write('\n')
                 file.write('dumping locally to fastq (minutes): %.2f'%dt2)
+        else:
+            start = timeit.default_timer()
+            os.system('fasterq-dump -S -O %s %s 2>%s'%(outp,racc,logfile))
+            end = timeit.default_timer()
+            if(gzip):
+                os.system('gzip %s'%ofiles)
+            endgzip = timeit.default_timer()
+            dt1= (end -start)/60
+            dt2 = (endgzip - end)/60
+
+            with open(logfile, 'a') as file:
+                file.write('downloading time (minutes): %.2f'%dt1)
+                file.write('\n')
+                file.write('gzip time (minutes): %.2f'%dt2)
 
     return()
 
