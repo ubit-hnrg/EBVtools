@@ -11,7 +11,13 @@ def get_args():
     
     parser.add_argument('--download', dest='download', action='store_true')
     parser.add_argument('--no-download', dest='download', action='store_false')
+
+    parser.add_argument('--prefetch', dest='prefetch', action='store_true')
+    parser.add_argument('--no-prefetch', dest='prefetch', action='store_false')
+
     parser.set_defaults(download=True)
+    parser.set_defaults(prefetch=False)  # prefetch mode is more sequre, its download the sra file and then convert it locally to fastq u other format
+
     args = parser.parse_args()
 
     ifile = args.samplefile
@@ -53,19 +59,36 @@ def download(run_acc,opath,gzip = True):
             print('skiping sample %s'%racc)
             continue
         print('downloading %s'%racc)    
-        start = timeit.default_timer()
-        os.system('fasterq-dump -S -O %s %s 2>%s'%(outp,racc,logfile))
-        end = timeit.default_timer()
-        if(gzip):
-            os.system('gzip %s'%ofiles)
-        endgzip = timeit.default_timer()
-        dt1= (end -start)/60
-        dt2 = (endgzip - end)/60
+                    
+        if(not prefetch):
+            start = timeit.default_timer()
+            os.system('fasterq-dump -S -O %s %s 2>%s'%(outp,racc,logfile))
+            end = timeit.default_timer()
+            if(gzip):
+                os.system('gzip %s'%ofiles)
+            endgzip = timeit.default_timer()
+            dt1= (end -start)/60
+            dt2 = (endgzip - end)/60
 
-        with open(logfile, 'a') as file:
-            file.write('downloading time (minutes): %.2f'%dt1)
-            file.write('\n')
-            file.write('gzip time (minutes): %.2f'%dt2)
+            with open(logfile, 'a') as file:
+                file.write('downloading time (minutes): %.2f'%dt1)
+                file.write('\n')
+                file.write('gzip time (minutes): %.2f'%dt2)
+        else:
+            start = timeit.default_timer()
+            os.system('prefetch -O %s %s 2>%s'%(outp,racc,logfile))
+            srafile=outp + '/'+racc+'.sra'
+            end = timeit.default_timer()
+            os.system('fastq-dump --split-files --gzip -O %s %s 2>>%s'%(outp,srafile,logfile))
+            
+            endfastq = timeit.default_timer()
+            dt1= (end -start)/60
+            dt2 = (endfastq - end)/60
+
+            with open(logfile, 'a') as file:
+                file.write('downloading SRA prefetch time (minutes): %.2f'%dt1)
+                file.write('\n')
+                file.write('dumping locally to fastq (minutes): %.2f'%dt2)
 
     return()
 
