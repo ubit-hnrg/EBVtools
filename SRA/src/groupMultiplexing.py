@@ -7,7 +7,7 @@ def get_args():
     parser = argparse.ArgumentParser(description='given a list of SRA ids, get its metadata info and download the associated RUN ids')
     parser.add_argument('--inputfile','-f',dest = 'inputfile',help='SRA list with metadata in tsv format')
     parser.add_argument('--outpath','-o',dest = 'outpath',help='root for the directory organization of sampes')
-    parser.add_argument('--runid_path','-o',dest = 'runidpath',help='root for the directory of RUN accession')
+    parser.add_argument('--runid_path','-r',dest = 'runidpath',help='root for the directory of RUN accession')
     
 
     args = parser.parse_args()
