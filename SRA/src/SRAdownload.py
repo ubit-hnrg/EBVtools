@@ -43,7 +43,9 @@ def params(ifile,opath, Filter = True):
     df.to_excel('%s.xlsx'%query)
   
     if(Filter):
-        run_acc = df[df['organism_taxid '] == 10376].run_accession 
+        df = df[df['organism_taxid '] == 10376]
+        run_acc = df.sort_values(by = 'SRA accession',ascending = True).run_accession 
+
     else:
         run_acc = df.run_accession 
         #run_acc = df[df['experiment_accession'] == 'ERX588931'].run_accession 
