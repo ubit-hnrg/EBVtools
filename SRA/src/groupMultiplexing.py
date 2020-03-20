@@ -22,7 +22,7 @@ def makesyml(ifile,opath,runidpath):
     df = pd.read_csv(ifile,sep = '\t')
     samplenames = df.sample_accession
     mapa = {}
-    for s in samplenams:
+    for s in samplenames:
         mapa.update({s:df[df.sample_accession == s].run_accession.values})
         spath = opath+s
         checklen = 2* len(mapa[s]) # consider foward and reveerse     
