@@ -45,7 +45,7 @@ def makesyml(ifile,opath,runidpath):
 
 def main():
     ifile,opath,runidpath = get_args()
-    makesyml = makedirs(ifile,opath,runidpath)
+    makesyml(ifile,opath,runidpath)
 
 if __name__ == '__main__':
     main()
