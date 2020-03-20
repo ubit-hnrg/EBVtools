@@ -44,7 +44,7 @@ def params(ifile,opath, Filter = True):
   
     if(Filter):
         df = df[df['organism_taxid '] == 10376]
-        run_acc = df.sort_values(by = 'SRA accession',ascending = True).run_accession 
+        run_acc = df.sort_values(by = 'sample_accession',ascending = True).run_accession 
 
     else:
         run_acc = df.run_accession 
