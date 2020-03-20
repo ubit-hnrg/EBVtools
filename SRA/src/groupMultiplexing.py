@@ -32,7 +32,6 @@ def makesyml(ifile,opath,runidpath):
 
         if(len(fastqs) == checklen):
             if(not os.path.exists(spath)):
-                print(1)
                 os.makedirs(spath)
 
             for fqsource in fastqs:
