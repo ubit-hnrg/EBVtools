@@ -28,7 +28,7 @@ def makesyml(ifile,opath,runidpath):
         checklen = 2* len(mapa[s]) # consider foward and reveerse     
         fastqs = []
         for runid in mapa[s]:
-            fastqs = glob.glob(runidpath+runid+'/*.gz')
+            fastqs  = fastqs + glob.glob(runidpath+runid+'/*.gz')
 
         if(len(fastqs) == checklen):
             if(not os.path.exists(spath)):
