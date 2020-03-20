@@ -40,6 +40,7 @@ def makesyml(ifile,opath,runidpath):
                 sfile = spath + '/' + fq
                 src = os.path.abspath(fqsource)
                 if (not os.path.exists(sfile)):
+                    print('symlink for sample %s runid %s'%(s,runid))
                     os.symlink(src,sfile)
         else:
             print 'sample %s do not contain all required fastq-files yet'%s
