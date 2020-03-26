@@ -62,7 +62,8 @@ for s in "${samples[@]}"
 
 	#Cat VCF
 	zgrep '^#' $outpath/$s/$s.calls.vcf.gz > header
-	intersectBed -wa -v -a $outpath/$s/$s.calls.vcf.gz -b /home/cata/EBV/coordenadas/$type/repetitive.$type > body.vcf 
+	intersectBed -wa -a $outpath/$s/$s.calls.vcf.gz -b $regionfile > body.vcf  ### 
+#	intersectBed -wa -v -a $outpath/$s/$s.calls.vcf.gz -b /home/cata/EBV/coordenadas/$type/repetitive.$type > body.vcf  ## commented on 26/03/2020
 	cat header body.vcf > $outpath/$s/$s.NonRep.calls.vcf
 	bgzip -c $outpath/$s/$s.NonRep.calls.vcf > $outpath/$s/$s.NonRep.calls.vcf.gz
 	tabix $outpath/$s/$s.NonRep.calls.vcf.gz
