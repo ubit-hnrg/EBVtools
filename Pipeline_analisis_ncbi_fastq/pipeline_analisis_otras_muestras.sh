@@ -4,8 +4,9 @@ referenceEBV='/home/cata/EBV/Genoma_referencia/'$type'/*.fa'
 reference='/home/cata/EBV/Genoma_referencia/'$type'/*NNN.fasta'
 regionfile='/home/cata/EBV/coordenadas/'$type'/Coordenadas.'$type
 
-samples=($(ls /mnt/datos/EBV/ncbi/fastq/))
-declare -a samples=("ERX588930" "ERX588931" "ERX588933" "ERX588934" "ERX588935" "ERX588936" "ERX588937" "ERX588928" "ERX588926" "ERX218634" "ERX588892" "ERX588923" "ERX588924" "ERX588925" "ERX588929" "ERX218638" "ERX588893" "ERX218626" "ERX218636")
+samplefile=$1
+#samples=($(ls /mnt/datos/EBV/ncbi/fastq/))
+#declare -a samples=("ERX588930" "ERX588931" "ERX588933" "ERX588934" "ERX588935" "ERX588936" "ERX588937" "ERX588928" "ERX588926" "ERX218634" "ERX588892" "ERX588923" "ERX588924" "ERX588925" "ERX588929" "ERX218638" "ERX588893" "ERX218626" "ERX218636")
 #samples= 'SRR9599785'
 outpath='/mnt/datos/EBV/ncbi/Processed/'$type
 
@@ -17,9 +18,10 @@ outtrimmed='/mnt/datos/EBV/ncbi/Processed/'$type
 #s1='/home/ariel/corona/data/PRJNA601736/wuhan1_1.fq'
 #s1='/home/ariel/corona/analysis/PRJNA601630/HKU-SZ-005b/HKU-SZ-005b_all.fastq'
 #s2='/home/ariel/corona/data/PRJNA601736/wuhan1_2.fq'
-for s in "${samples[@]}"
+#for s in "${samples[@]}"
+cat $samplefile | while read s 
 	do
-	#echo $s
+	echo 'analysing sample: '$s
 	mkdir $outpath/$s -p
 	#zcat /home/cata/EBV/ANALISIS-OTRAS-SEQ/FASTQ/$s/*_1.fastq.gz |gzip > $outtrimmed/$s/$s.R1.fq.gz
 	#zcat /home/cata/EBV/ANALISIS-OTRAS-SEQ/FASTQ/$s/*_2.fastq.gz |gzip > $outtrimmed/$s/$s.R2.fq.gz
