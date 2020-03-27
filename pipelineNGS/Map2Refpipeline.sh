@@ -83,8 +83,7 @@ else:
 	gzip $outtrimmed/$s.good.trimmed_1.fastq
 	gzip $outtrimmed/$s.good.trimmed_2.fastq
 	rm $outtrimmed/$s.*.trimmed.fq
-done	
-
+fi
 ################     maping stage      #################
 
 	#Map to reference
