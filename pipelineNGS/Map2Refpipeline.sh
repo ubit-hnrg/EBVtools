@@ -154,7 +154,6 @@ tabix $outvcfbgz
 
 #Cat VCF
 if [ "$mask" != "None" ];then
-	echo 'entro aca'
 	ovcfbgz=$outp/$s.NonRep.calls.vcf.gz
 	outvcf=$outp/$s.NonRep.calls.vcf
 	
@@ -207,6 +206,3 @@ else
 	outConsensus=$outp/$s.nonzero.consensus.fa
 
 bcftools consensus -f $NonZeroCoverageReference $ovcfbgz > $outConsensus
-	
-	
-#done
