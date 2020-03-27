@@ -157,9 +157,10 @@ if [ "$mask" != "None" ];then
 	echo 'entro aca'
 	ovcfbgz=$outp/$s.NonRep.calls.vcf.gz
 	outvcf=$outp/$s.NonRep.calls.vcf
-	zgrep '^#' $outvcfgz > header
-	intersectBed -wa -a $outvcfgz -b $interval > body.vcf  ### 
-	#intersectBed -wa -v -a $outvcfgz -b /data/EBV/analisis_NGS/Coordenadas/$type/repetitive.$type > body.vcf 
+	
+	zgrep '^#' $outvcfbgz > header
+	intersectBed -wa -a $outvcfbgz -b $interval > body.vcf  ### 
+	#intersectBed -wa -v -a $outvcfbgz -b /data/EBV/analisis_NGS/Coordenadas/$type/repetitive.$type > body.vcf 
 	cat header body.vcf > $outvcf
 	bgzip -c $outp/$s.NonRep.calls.vcf > $ovcfbgz
 	tabix $ovcfbgz
