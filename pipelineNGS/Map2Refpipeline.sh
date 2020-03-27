@@ -17,9 +17,13 @@ mkdir -p $outp
 outtrimmed=$outp/'trimmed'/$s
 
 refdir=$outp/refGenomes
+intervaldir=$outp/intervals
 maskedReference=$refdir/maskedReference.fa
+statsdir=$outp/stats
 
 mkdir -p $refdir
+mkdir -p $intervaldir
+mkdir -p $statsdir
 #####################################################
 
 
@@ -27,7 +31,7 @@ mkdir -p $refdir
 ## Get zero-based bedfile for masking in the right way. 
 
 if [ "$mask" != "None" ];then
-zeroMaskFile=$outp/maskZB.bed
+zeroMaskFile=$intervaldir/maskZB.bed
 
 	cat $mask | while read chr start end 
 	do
@@ -40,20 +44,20 @@ fi
 
 
 if [ "$mask" != "None" ];then
-	interval=$outp/keeping_intervalZB.bed
+	interval=$intervaldir/keeping_intervalZB.bed
 	#Get complement of masing file and name it $interval
 	len=$(awk '/^>/{if (l!="") ;; l=0; next}{l+=length($0)}END{print l}' $referenceEBV)
 	refid=$(head -n1 $mask|cut -f1)
-	echo -e $refid'\t'$len > $outp/referenceLength.tsv
+	echo -e $refid'\t'$len > $intervaldir/referenceLength.tsv
 
 	## amplio uno a izquierda y uno a derecha porque el complement de bedtools no permite sacar los extremos
-	maskforcomplement=$outp/maskforcomplement.tmp
+	maskforcomplement=$intervaldir/maskforcomplement.tmp
 		cat $zeroMaskFile | while read chr start end 
 		do
 			echo -e $chr'\t'$(($start-1))'\t'$(($end+1))   
 		done  > $maskforcomplement
 
-	bedtools complement -i $maskforcomplement -g $outp/referenceLength.tsv > $interval
+	bedtools complement -i $maskforcomplement -g $intervaldir/referenceLength.tsv > $interval
 fi
 
 ################################################################################
@@ -131,9 +135,11 @@ fi
 samtools index $outbam
 
 #Compute statistics for whole bam
-samtools stats $outp/$s.bam > $outp/$s.stats
+samtools stats $outp/$s.bam > $statsdir/$s.stats
 #Compute statistics for final bam (without repetitive regions nither unmapped reads)
-samtools stats $outbam > $outbam.stats
+bn=$(basename $outbam)
+
+samtools stats $outbam > $statsdir/$bn.stats
 
 #### end mapping stage (including bam statistics)
 #################################################################################################
@@ -162,14 +168,14 @@ if [ "$mask" != "None" ];
 	ovcfbgz=$outp/$s.NonRep.calls.vcf.gz
 	outvcf=$outp/$s.NonRep.calls.vcf
 	
-	zgrep '^#' $outvcfbgz > header
-	intersectBed -wa -a $outvcfbgz -b $interval > body.vcf  ### 
+	zgrep '^#' $outvcfbgz > $outp/header
+	intersectBed -wa -a $outvcfbgz -b $interval > $outp/body.vcf  ### 
 	#intersectBed -wa -v -a $outvcfbgz -b /data/EBV/analisis_NGS/Coordenadas/$type/repetitive.$type > body.vcf 
-	cat header body.vcf > $outvcf
+	cat $outp/header $outp/body.vcf > $outvcf
 	bgzip -c $outp/$s.NonRep.calls.vcf > $ovcfbgz
 	tabix $ovcfbgz
-	rm header
-	rm body.vcf
+	rm $outp/header
+	rm $outp/body.vcf
 else
 	ovcfbgz=$outvcfbgz
 fi
@@ -179,15 +185,15 @@ fi
 
 
 	#Coverange_0
-	bedtools genomecov -ibam $outbam -bga | awk '$4==0' > $outp/$s.Cob0.bed    ## This file is Zero-based
+	bedtools genomecov -ibam $outbam -bga | awk '$4==0' > $intervaldir/$s.Cob0.bed    ## This file is Zero-based
 
 	#Deletion
-	deletionfile=$outp/$s.deletion.bed
-	deletionfileZeroBased=$outp/$s.deletionZB.bed
+	deletionfile=$intervaldir/$s.deletion.bed
+	deletionfileZeroBased=$intervaldir/$s.deletionZB.bed
 	vcf2bed -n < $outvcf > $deletionfile  # Cata this file is One-based, so you can't mix it directly with bedfiles as Cob0.bed
-	less $deletionfile | awk '{print $1, $2, $3}' > $outp/$s.deletion.c.bed
-	less $outp/$s.deletion.c.bed |tr ' ' '\t' > $deletionfile
-	rm $outp/$s.deletion.c.bed
+	less $deletionfile | awk '{print $1, $2, $3}' > $intervaldir/$s.deletion.c.bed
+	less $intervaldir/$s.deletion.c.bed |tr ' ' '\t' > $deletionfile
+	rm $intervaldir/$s.deletion.c.bed
 
 	cat $deletionfile | while read chr start end; 
 	do
@@ -198,7 +204,7 @@ fi
 	
 	############################################
 	## get consensus sequence
-	bedtools subtract -a $outp/$s.Cob0.bed -b $deletionfileZeroBased > $outp/$s.COB-DEL.bed
+	bedtools subtract -a $outp/$s.Cob0.bed -b $deletionfileZeroBased > $intervaldir/$s.COB-DEL.bed
 	NonZeroCoverageReference=$refdir/$s'_NonZeroCoverageReference.fa'
 	#/home/cata/EBVtools/mask_reference.py -r $maskedReference -c $outp/$s.COB-DEL.bed -o $modified_reference
 
