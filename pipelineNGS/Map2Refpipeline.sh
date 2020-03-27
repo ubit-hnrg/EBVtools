@@ -38,22 +38,47 @@ FilterBinaryCode='1548'
 # create variables for writing outputs
 outp=$outpath/$sample
 mkdir -p $outp
-zeroMaskFile=$outp/zero-based-mask.bed
-maskedReference=$outp/maskedReference.fa
 outtrimmed=$outp/'trimmed'/$s
+maskedReference=$outp/maskedReference.fa
+
 #####################################################
 
 
 ###############################################################################
 ## Get zero-based bedfile for masking in the right way. 
-cat $mask | while read chr start end 
-do
-    echo -e $chr'\t'$(($start-1))'\t'$(($end-1)) 
-done  > $zeroMaskFile
 
-# mask original reference
-bedtools maskfasta -fi $referenceEBV -bed $zeroMaskFile -fo $maskedReference
+if [ "$mask" != "None" ];then
+zeroMaskFile=$outp/baskZB.bed
+
+	cat $mask | while read chr start end 
+	do
+		echo -e $chr'\t'$(($start-1))'\t'$(($end-1)) 
+	done  > $zeroMaskFile
+
+	# mask original reference
+	bedtools maskfasta -fi $referenceEBV -bed $zeroMaskFile -fo $maskedReference
+fi
+
+
+if [ "$mask" != "None" ];then
+	interval=$outp/keeping_intervalZB.bed
+	#Get complement of masing file and name it $interval
+	len=$(awk '/^>/{if (l!="") ;; l=0; next}{l+=length($0)}END{print l}' $referenceEBV)
+	refid=$(head -n1 $mask|cut -f1 -d'>')
+	echo -e $refid'\t'$len > $outp/referenceLength.tsv
+
+	## amplio uno a izquierda y uno a derecha porque el complement de bedtools no permite sacar los extremos
+	maskforcomplement=$outp/maskforcomplement.tmp
+		cat $zeroMaskFile | while read chr start end 
+		do
+			echo -e $chr'\t'$(($start-1))'\t'$(($end+1))   
+		done  > $maskforcomplement
+
+	bedtools complement -i $maskforcomplement -g $outp/referenceLength.tsv > $interval
+fi
+
 ################################################################################
+
 
 #cat $samplefile |while read s;
 #	do
@@ -89,66 +114,119 @@ else
 	rm $outtrimmed/$s.*.trimmed.fq
 fi
 
+
+####################################################################################
 ################     maping stage      #################
 	#Map to reference
+if [ "$mask" != "None" ];then
 	bwa index $maskedReference
+fi
 
+if [ "$mask" != "None" ];then
 bwa mem -K 100000000 -v 1 -t 4 $maskedReference \
 	<(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) \
 	<(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outp/$s.bam
-	
-	#Remove duplicates and unmapped reads
-	samtools view -b -F $FilterBinaryCode $outp/$s.bam > $outp/$s.mapped.bam  
-	
-	#Sort bam
-	samtools sort $outp/$s.mapped.bam > $outp/$s.mapped.sorted.bam
-	
-	#Drop out repetitive regions (according to coords file /home/cata/). 
-	samtools view -bL $interval $outp/$s.mapped.sorted.bam > $outp/$s.mapped.sorted.withoutrep.bam
+else
+bwa mem -K 100000000 -v 1 -t 4 $referenceEBV \
+	<(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) \
+	<(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outp/$s.bam
+fi
 
-	#Create bam index
-	samtools index $outp/$s.mapped.sorted.withoutrep.bam
+#Remove duplicates and unmapped reads
+samtools view -b -F $FilterBinaryCode $outp/$s.bam > $outp/$s.mapped.bam  
 	
-	#Compute statistics for whole bam
-	samtools stats $outp/$s.bam > $outp/$s.stats
+#Sort bam
+samtools sort $outp/$s.mapped.bam > $outp/$s.mapped.sorted.bam
+	
+#Drop out repetitive regions (according to coords file /home/cata/). 
+outbam=$outp/$s.mapped.sorted.withoutrep.bam
+if [ "$mask" != "None" ];then
+	samtools view -bL $interval $outp/$s.mapped.sorted.bam > $outbam
+else
+outbam=$outp/$s.mapped.sorted.bam
+fi
 
-	#Compute statistics for final bam (without repetitive regions nither unmapped reads)
-	samtools stats $outp/$s.mapped.sorted.withoutrep.bam > $outp/$s.mapped.sorted.withoutrep.stats
-	
-	#Get vcf
-	bcftools mpileup -f $referenceEBV $outp/$s.mapped.sorted.withoutrep.bam |bcftools call -mv --ploidy 1 -o $outp/$s.calls.vcf
-	
-	bgzip -c $outp/$s.calls.vcf > $outp/$s.calls.vcf.gz
-	tabix $outp/$s.calls.vcf.gz
+#Create bam index
+samtools index $outbam
 
-	#Cat VCF
-	zgrep '^#' $outp/$s.calls.vcf.gz > header
-	intersectBed -wa -a $outp/$s.calls.vcf.gz -b $interval > body.vcf  ### 
-	#intersectBed -wa -v -a $outp/$s.calls.vcf.gz -b /data/EBV/analisis_NGS/Coordenadas/$type/repetitive.$type > body.vcf 
-	cat header body.vcf > $outp/$s.NonRep.calls.vcf
-	bgzip -c $outp/$s.NonRep.calls.vcf > $outp/$s.NonRep.calls.vcf.gz
-	tabix $outp/$s.NonRep.calls.vcf.gz
+#Compute statistics for whole bam
+samtools stats $outp/$s.bam > $outp/$s.stats
+#Compute statistics for final bam (without repetitive regions nither unmapped reads)
+samtools stats $outbam > $outbam.stats
+
+#### end mapping stage (including bam statistics)
+#################################################################################################
+
+
+
+#################################################################################################
+##################################### VARIANT CALLING STEP 
+#Get vcf
+if [ "$mask" != "None" ];then
+	bcftools mpileup -f $maskedReference $outbam |bcftools call -mv --ploidy 1 -o $outp/$s.calls.vcf
+else
+	bcftools mpileup -f $referenceEBV $outbam |bcftools call -mv --ploidy 1 -o $outp/$s.calls.vcf
+fi
+
+outvcf=$outp/$s.calls.vcf
+outvcfbgz=$outp/$s.calls.vcf.gz
+bgzip -c $outp/$s.calls.vcf > $outvcfbgz
+tabix $outvcfbgz
+
+
+#Cat VCF
+if [ "$mask" != "None" ];then
+	ovcfbgz=$outp/$s.NonRep.calls.vcf.gz
+	outvcf=$outp/$s.NonRep.calls.vcf
+	zgrep '^#' $outvcfgz > header
+	intersectBed -wa -a $outvcfgz -b $interval > body.vcf  ### 
+	#intersectBed -wa -v -a $outvcfgz -b /data/EBV/analisis_NGS/Coordenadas/$type/repetitive.$type > body.vcf 
+	cat header body.vcf > $outvcf
+	bgzip -c $outp/$s.NonRep.calls.vcf > $ovcfbgz
+	tabix $ovcfbgz
 	rm header
 	rm body.vcf
+else
+	ovcfbgz=$outvcfbgz
+fi
+
+#################### end of variant calling step ###############################
+########################################################################################################
+
 
 	#Coverange_0
-	bedtools genomecov -ibam $outp/$s.mapped.sorted.bam -bga | awk '$4==0'| less > $outp/$s.Cob0.bed
+	bedtools genomecov -ibam $outbam -bga | awk '$4==0' > $outp/$s.Cob0.bed    ## This file is Zero-based
 
 	#Deletion
-	vcf2bed -n < $outp/$s.NonRep.calls.vcf > $outp/$s.deletion.bed
-	less $outp/$s.deletion.bed | awk '{print $1, $2, $3}' > $outp/$s.deletion.c.bed
-	less $outp/$s.deletion.c.bed |tr ' ' '\t' > $outp/$s.deletion.bed
+	deletionfile=$outp/$s.deletion.bed
+	deletionfileZeroBased=$outp/$s.deletionZB.bed
+	vcf2bed -n < $outvcf > $deletionfile  # Cata this file is One-based, so you can't mix it directly with bedfiles as Cob0.bed
+	less $deletionfile | awk '{print $1, $2, $3}' > $outp/$s.deletion.c.bed
+	less $outp/$s.deletion.c.bed |tr ' ' '\t' > $deletionfile
 	rm $outp/$s.deletion.c.bed
 
+	cat $deletionfile | while read chr start end 
+	do
+		echo -e $chr'\t'$(($start-1))'\t'$(($end-1)) 
+	done  > $deletionfileZeroBased
+
 	
+	
+	############################################
 	## get consensus sequence
-	bedtools subtract -a $outp/$s.Cob0.bed -b $outp/$s.deletion.bed > $outp/$s.COB-DEL.bed
+	bedtools subtract -a $outp/$s.Cob0.bed -b $deletionfileZeroBased > $outp/$s.COB-DEL.bed
 	NonZeroCoverageReference=$outp/$s'_NonZeroCoverageReference.fa'
 	#/home/cata/EBVtools/mask_reference.py -r $maskedReference -c $outp/$s.COB-DEL.bed -o $modified_reference
 
+if [ "$mask" != "None" ];then
 	# mask again but incorpore zero coverage regions
-	bedtools maskfasta -fi $maskedReference -bed $outp/$s.COB-DEL.bed -fo $NonZeroCoverageReference
-	bcftools consensus -f $NonZeroCoverageReference $outp/$s.NonRep.calls.vcf.gz > $outp/$s.nonrep.consensus.fa
+	bedtools maskfasta -fi $maskedReference -bed $outp/$s.COB-DEL.bed -fo $NonZeroCoverageReference # Ok, the bedfile is zero-based
+	outConsensus=$outp/$s.nonrep.nonzero.consensus.fa
+else
+	bedtools maskfasta -fi $referenceEBV -bed $outp/$s.COB-DEL.bed -fo $NonZeroCoverageReference # Ok, the bedfile is zero-based
+	outConsensus=$outp/$s.nonzero.consensus.fa
+
+bcftools consensus -f $NonZeroCoverageReference $ovcfbgz > $outConsensus
 	
 	
 #done
