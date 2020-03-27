@@ -43,7 +43,7 @@ maskedReference=$outpath/maskedReference.fa
 ## Get zero-based bedfile for masking in the right way. 
 cat $mask | while read chr start end 
 do
-    echo -e $chr'\t'$(($start-1))'\t'$(($end-2)) 
+    echo -e $chr'\t'$(($start-1))'\t'$(($end-1)) 
 done  > $zeroMaskFile
 
 # mask original reference
@@ -55,7 +55,6 @@ bedtools maskfasta -fi $referenceEBV -bed $zeroMaskFile -fo $maskedReference
 #outpath='/data/EBV/analisis_NGS/Processed/'$type #localización del archivo final
 #outtrimmed='/data/EBV/analisis_NGS/Trimmed' #localización de las reads pre y post trimming y eliminación de duplicados
 outtrimmed=$outpath/'trimmed'/$s
-
 
 #cat $samplefile |while read s;
 #	do
