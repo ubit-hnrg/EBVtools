@@ -92,7 +92,7 @@ fi
 	#Map to reference
 	bwa index $maskedReference
 
-	bwa mem -K 100000000 -v 1 -t 4 $maskedReference \
+bwa mem -K 100000000 -v 1 -t 4 $maskedReference \
 	<(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) \
 	<(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outpath/$s/$s.bam
 	
