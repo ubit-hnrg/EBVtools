@@ -11,6 +11,10 @@ set -e
 
 for i in "$@"
 do
+# default values
+maskfile='None'
+FilterBinaryCode="1548"
+
 case $i in
     -S=*|--sample=*)
     sample="${i#*=}"
@@ -34,16 +38,13 @@ case $i in
     ;;
     -F=*|--FilterBinaryCode=*)  
     FilterBinaryCode="${i#*=}"
-
     ;;
-    
     *)
+
             # unknown option
     ;;
 esac
 	#default paramenters
-	maskfile='None'
-    FilterBinaryCode="1548"
 done
 
 ####################################################
