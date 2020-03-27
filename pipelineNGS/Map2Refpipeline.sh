@@ -36,10 +36,11 @@ FilterBinaryCode='1548'
 ####################################################
 # create output path if do not exist
 # create variables for writing outputs
-mkdir -p $outpath/$sample
-zeroMaskFile=$outpath/zero-based-mask.bed
-maskedReference=$outpath/maskedReference.fa
-outtrimmed=$outpath/'trimmed'/$s
+outp=$outpath/$sample
+mkdir -p $outp
+zeroMaskFile=$outp/zero-based-mask.bed
+maskedReference=$outp/maskedReference.fa
+outtrimmed=$outp/'trimmed'/$s
 #####################################################
 
 
@@ -94,60 +95,60 @@ fi
 
 bwa mem -K 100000000 -v 1 -t 4 $maskedReference \
 	<(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) \
-	<(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outpath/$s/$s.bam
+	<(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outp/$s.bam
 	
 	#Remove duplicates and unmapped reads
-	samtools view -b -F $FilterBinaryCode $outpath/$s/$s.bam > $outpath/$s/$s.mapped.bam  
+	samtools view -b -F $FilterBinaryCode $outp/$s.bam > $outp/$s.mapped.bam  
 	
 	#Sort bam
-	samtools sort $outpath/$s/$s.mapped.bam > $outpath/$s/$s.mapped.sorted.bam
+	samtools sort $outp/$s.mapped.bam > $outp/$s.mapped.sorted.bam
 	
 	#Drop out repetitive regions (according to coords file /home/cata/). 
-	samtools view -bL $interval $outpath/$s/$s.mapped.sorted.bam > $outpath/$s/$s.mapped.sorted.withoutrep.bam
+	samtools view -bL $interval $outp/$s.mapped.sorted.bam > $outp/$s.mapped.sorted.withoutrep.bam
 
 	#Create bam index
-	samtools index $outpath/$s/$s.mapped.sorted.withoutrep.bam
+	samtools index $outp/$s.mapped.sorted.withoutrep.bam
 	
 	#Compute statistics for whole bam
-	samtools stats $outpath/$s/$s.bam > $outpath/$s/$s.stats
+	samtools stats $outp/$s.bam > $outp/$s.stats
 
 	#Compute statistics for final bam (without repetitive regions nither unmapped reads)
-	samtools stats $outpath/$s/$s.mapped.sorted.withoutrep.bam > $outpath/$s/$s.mapped.sorted.withoutrep.stats
+	samtools stats $outp/$s.mapped.sorted.withoutrep.bam > $outp/$s.mapped.sorted.withoutrep.stats
 	
 	#Get vcf
-	bcftools mpileup -f $referenceEBV $outpath/$s/$s.mapped.sorted.withoutrep.bam |bcftools call -mv --ploidy 1 -o $outpath/$s/$s.calls.vcf
+	bcftools mpileup -f $referenceEBV $outp/$s.mapped.sorted.withoutrep.bam |bcftools call -mv --ploidy 1 -o $outp/$s.calls.vcf
 	
-	bgzip -c $outpath/$s/$s.calls.vcf > $outpath/$s/$s.calls.vcf.gz
-	tabix $outpath/$s/$s.calls.vcf.gz
+	bgzip -c $outp/$s.calls.vcf > $outp/$s.calls.vcf.gz
+	tabix $outp/$s.calls.vcf.gz
 
 	#Cat VCF
-	zgrep '^#' $outpath/$s/$s.calls.vcf.gz > header
-	intersectBed -wa -a $outpath/$s/$s.calls.vcf.gz -b $interval > body.vcf  ### 
-	#intersectBed -wa -v -a $outpath/$s/$s.calls.vcf.gz -b /data/EBV/analisis_NGS/Coordenadas/$type/repetitive.$type > body.vcf 
-	cat header body.vcf > $outpath/$s/$s.NonRep.calls.vcf
-	bgzip -c $outpath/$s/$s.NonRep.calls.vcf > $outpath/$s/$s.NonRep.calls.vcf.gz
-	tabix $outpath/$s/$s.NonRep.calls.vcf.gz
+	zgrep '^#' $outp/$s.calls.vcf.gz > header
+	intersectBed -wa -a $outp/$s.calls.vcf.gz -b $interval > body.vcf  ### 
+	#intersectBed -wa -v -a $outp/$s.calls.vcf.gz -b /data/EBV/analisis_NGS/Coordenadas/$type/repetitive.$type > body.vcf 
+	cat header body.vcf > $outp/$s.NonRep.calls.vcf
+	bgzip -c $outp/$s.NonRep.calls.vcf > $outp/$s.NonRep.calls.vcf.gz
+	tabix $outp/$s.NonRep.calls.vcf.gz
 	rm header
 	rm body.vcf
 
 	#Coverange_0
-	bedtools genomecov -ibam $outpath/$s/$s.mapped.sorted.bam -bga | awk '$4==0'| less > $outpath/$s/$s.Cob0.bed
+	bedtools genomecov -ibam $outp/$s.mapped.sorted.bam -bga | awk '$4==0'| less > $outp/$s.Cob0.bed
 
 	#Deletion
-	vcf2bed -n < $outpath/$s/$s.NonRep.calls.vcf > $outpath/$s/$s.deletion.bed
-	less $outpath/$s/$s.deletion.bed | awk '{print $1, $2, $3}' > $outpath/$s/$s.deletion.c.bed
-	less $outpath/$s/$s.deletion.c.bed |tr ' ' '\t' > $outpath/$s/$s.deletion.bed
-	rm $outpath/$s/$s.deletion.c.bed
+	vcf2bed -n < $outp/$s.NonRep.calls.vcf > $outp/$s.deletion.bed
+	less $outp/$s.deletion.bed | awk '{print $1, $2, $3}' > $outp/$s.deletion.c.bed
+	less $outp/$s.deletion.c.bed |tr ' ' '\t' > $outp/$s.deletion.bed
+	rm $outp/$s.deletion.c.bed
 
 	
 	## get consensus sequence
-	bedtools subtract -a $outpath/$s/$s.Cob0.bed -b $outpath/$s/$s.deletion.bed > $outpath/$s/$s.COB-DEL.bed
-	NonZeroCoverageReference=$outpath/$s/$s'_NonZeroCoverageReference.fa'
-	#/home/cata/EBVtools/mask_reference.py -r $maskedReference -c $outpath/$s/$s.COB-DEL.bed -o $modified_reference
+	bedtools subtract -a $outp/$s.Cob0.bed -b $outp/$s.deletion.bed > $outp/$s.COB-DEL.bed
+	NonZeroCoverageReference=$outp/$s'_NonZeroCoverageReference.fa'
+	#/home/cata/EBVtools/mask_reference.py -r $maskedReference -c $outp/$s.COB-DEL.bed -o $modified_reference
 
 	# mask again but incorpore zero coverage regions
-	bedtools maskfasta -fi $maskedReference -bed $outpath/$s/$s.COB-DEL.bed -fo $NonZeroCoverageReference
-	bcftools consensus -f $NonZeroCoverageReference $outpath/$s/$s.NonRep.calls.vcf.gz > $outpath/$s/$s.nonrep.consensus.fa
+	bedtools maskfasta -fi $maskedReference -bed $outp/$s.COB-DEL.bed -fo $NonZeroCoverageReference
+	bcftools consensus -f $NonZeroCoverageReference $outp/$s.NonRep.calls.vcf.gz > $outp/$s.nonrep.consensus.fa
 	
 	
 #done
