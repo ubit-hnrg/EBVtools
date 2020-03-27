@@ -38,7 +38,7 @@ FilterBinaryCode='1548'
 
 ## Mask reference
 mkdir -p $outpath/$sample
-maskedReference=$outpath/maskedReference.fa
+maskedReference=$outpath/'maskedReference.fa'
 bedtools maskfasta -fi $referenceEBV -bed $interval -fo $maskedReference
 
 #samples=($(ls /data/EBV/ncbi/bySRAid/)) #localización de las muestras
