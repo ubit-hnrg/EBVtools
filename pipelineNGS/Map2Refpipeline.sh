@@ -131,7 +131,7 @@ samtools sort $bamfolder/$s.mapped.bam > $bamfolder/$s.mapped.sorted.bam
 outbam=$bamfolder/$s.mapped.sorted.withoutrep.bam
 if [ "$mask" != "None" ];
 then
-	samtools view -bL $interval $outp/$s.mapped.sorted.bam > $outbam
+	samtools view -bL $interval $bamfolder/$s.mapped.sorted.bam > $outbam
 else
 	outbam=$bamfolder/$s.mapped.sorted.bam
 fi
