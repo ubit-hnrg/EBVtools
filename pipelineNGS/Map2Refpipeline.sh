@@ -26,7 +26,7 @@ set -e
 #mkdir /home/cata/analisis_NGS/Genoma_Referencia/'$type' :contendrá el bam y la consenso generada a partir de las reads pre-procesadas
 
 sample=$1
-inputdir=$2
+inputpath=$2
 outpath=$3
 referenceEBV=$4
 mask=$5
@@ -59,10 +59,9 @@ outtrimmed=$outpath/'trimmed'/$s
 #cat $samplefile |while read s;
 #	do
 s=$sample
-	echo 'processing sample id: '$s
-	
-	##Generamos una nueva carpeta dentro del directorio Trimmed que contendrá las lecturas resultantes del preprocesamiento de las muestras
-	mkdir -p $outtrimmed  
+echo 'processing sample id: '$s
+##Generamos una nueva carpeta dentro del directorio Trimmed que contendrá las lecturas resultantes del preprocesamiento de las muestras
+mkdir -p $outtrimmed  
 
 
 ################## PREPROCESSING #################
@@ -72,8 +71,8 @@ if [ -f "$outtrimmed/$s.good.trimmed_1.fastq.gz" ]; then
 	echo 'skiping preprocessing step'
 else
 	##Agrupamos los archivos descargados en dos grupos:
-	zcat $inputdir/*_1.fastq.gz |gzip > $outtrimmed/$s.R1.fq.gz
-	zcat $inputdir/*_2.fastq.gz |gzip > $outtrimmed/$s.R2.fq.gz
+	zcat $inputpath/*_1.fastq.gz |gzip > $outtrimmed/$s.R1.fq.gz
+	zcat $inputpath/*_2.fastq.gz |gzip > $outtrimmed/$s.R2.fq.gz
 
 	##Trimmed y eliminacion de lecturas con baja calidad
 	fastp --disable_adapter_trimming -i $outtrimmed/$s.R1.fq.gz -I $outtrimmed/$s.R2.fq.gz -o $outtrimmed/$s.R1.trimmed.fq.gz \
@@ -95,7 +94,7 @@ fi
 
 ################     maping stage      #################
 	#Map to reference
-bwa mem -K 100000000 -v 1 -t 4 $referenceEBV <(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) <(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outpath/$s/$s.bam
+#bwa mem -K 100000000 -v 1 -t 4 $referenceEBV <(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) <(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outpath/$s/$s.bam
 	
 	#Remove duplicates and unmapped reads
 	samtools view -b -F 1548 $outpath/$s/$s.bam > $outpath/$s/$s.mapped.bam  
