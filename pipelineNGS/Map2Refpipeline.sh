@@ -40,14 +40,14 @@ referenceEBV=$reference
 mask=$maskfile
 FilterBinaryCode='1548'
 
-echo 'runing parameters'
-
-echo 'sample: '$sample
-echo 'input directory: '$inputpath
-echo 'output direrctory: '$outpath
-echo 'reference file: '$reference
-echo 'barcode for filtering: '$FilterBinaryCode
-echo 'Masking File: '$mask
+inputs=$outpath/$sample/inputs.log
+echo 'runing parameters'>$inputs
+echo 'sample: '$sample >>$inputs
+echo 'input directory: '$inputpath >>$inputs
+echo 'output direrctory: '$outpath >>$inputs
+echo 'reference file: '$reference >>$inputs
+echo 'barcode for filtering: '$FilterBinaryCode >>$inputs
+echo 'Masking File: '$mask >>$inputs
 
 ####################################################
 # create output path if do not exist
