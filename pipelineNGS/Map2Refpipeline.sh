@@ -205,7 +205,7 @@ fi
 	
 	############################################
 	## get consensus sequence
-	bedtools subtract -a $outp/$s.Cob0.bed -b $deletionfileZeroBased > $intervaldir/$s.COB-DEL.bed
+	bedtools subtract -a $intervaldir/$s.Cob0.bed -b $deletionfileZeroBased > $intervaldir/$s.COB-DEL.bed
 	NonZeroCoverageReference=$refdir/$s'_NonZeroCoverageReference.fa'
 	#/home/cata/EBVtools/mask_reference.py -r $maskedReference -c $outp/$s.COB-DEL.bed -o $modified_reference
 
