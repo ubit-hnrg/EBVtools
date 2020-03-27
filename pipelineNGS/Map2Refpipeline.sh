@@ -70,7 +70,7 @@ mkdir -p $outtrimmed
 
 if [ -f "$outtrimmed/$s.good.trimmed_1.fastq.gz" ]; then
 	echo 'skiping preprocessing step'
-else
+elif
 	##Agrupamos los archivos descargados en dos grupos:
 	zcat $inputpath/*_1.fastq.gz |gzip > $outtrimmed/$s.R1.fq.gz
 	zcat $inputpath/*_2.fastq.gz |gzip > $outtrimmed/$s.R2.fq.gz
@@ -105,7 +105,7 @@ if [ "$mask" != "None" ];then
 bwa mem -K 100000000 -v 1 -t 4 $maskedReference \
 	<(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) \
 	<(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outp/$s.bam
-else
+elif
 bwa mem -K 100000000 -v 1 -t 4 $referenceEBV \
 	<(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) \
 	<(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outp/$s.bam
@@ -121,7 +121,7 @@ samtools sort $outp/$s.mapped.bam > $outp/$s.mapped.sorted.bam
 outbam=$outp/$s.mapped.sorted.withoutrep.bam
 if [ "$mask" != "None" ];then
 	samtools view -bL $interval $outp/$s.mapped.sorted.bam > $outbam
-else
+elif
 outbam=$outp/$s.mapped.sorted.bam
 fi
 
@@ -143,7 +143,7 @@ samtools stats $outbam > $outbam.stats
 #Get vcf
 if [ "$mask" != "None" ];then
 	bcftools mpileup -f $maskedReference $outbam |bcftools call -mv --ploidy 1 -o $outp/$s.calls.vcf
-else
+elif
 	bcftools mpileup -f $referenceEBV $outbam |bcftools call -mv --ploidy 1 -o $outp/$s.calls.vcf
 fi
 
@@ -166,7 +166,7 @@ if [ "$mask" != "None" ];then
 	tabix $ovcfbgz
 	rm header
 	#rm body.vcf
-else
+elif
 	ovcfbgz=$outvcfbgz
 fi
 
@@ -202,7 +202,7 @@ if [ "$mask" != "None" ];then
 	# mask again but incorpore zero coverage regions
 	bedtools maskfasta -fi $maskedReference -bed $outp/$s.COB-DEL.bed -fo $NonZeroCoverageReference # Ok, the bedfile is zero-based
 	outConsensus=$outp/$s.nonrep.nonzero.consensus.fa
-else
+elif
 	bedtools maskfasta -fi $referenceEBV -bed $outp/$s.COB-DEL.bed -fo $NonZeroCoverageReference # Ok, the bedfile is zero-based
 	outConsensus=$outp/$s.nonzero.consensus.fa
 
