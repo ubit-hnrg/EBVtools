@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+
 sample=$1;
 s=$sample #alias
 inputpath=$2
@@ -211,10 +212,10 @@ fi
 if [ "$mask" != "None" ];
 then
 	# mask again but incorpore zero coverage regions
-	bedtools maskfasta -fi $maskedReference -bed $outp/$s.COB-DEL.bed -fo $NonZeroCoverageReference # Ok, the bedfile is zero-based
+	bedtools maskfasta -fi $maskedReference -bed $intervaldir/$s.COB-DEL.bed -fo $NonZeroCoverageReference # Ok, the bedfile is zero-based
 	outConsensus=$outp/$s.nonrep.nonzero.consensus.fa
 else
-	bedtools maskfasta -fi $referenceEBV -bed $outp/$s.COB-DEL.bed -fo $NonZeroCoverageReference # Ok, the bedfile is zero-based
+	bedtools maskfasta -fi $referenceEBV -bed $intervaldir/$s.COB-DEL.bed -fo $NonZeroCoverageReference # Ok, the bedfile is zero-based
 	outConsensus=$outp/$s.nonzero.consensus.fa
 fi
 bcftools consensus -f $NonZeroCoverageReference $ovcfbgz > $outConsensus
