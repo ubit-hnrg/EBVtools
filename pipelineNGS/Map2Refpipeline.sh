@@ -1,4 +1,12 @@
 #!/bin/bash
+#please use in this way:
+# ./Map2Refpipeline.sh --sample='samplename' --inputpath=/path/to/samplefolder \
+#	--outpath=/path/to/output_folder --reference=/path/to/reference_file.fa \
+#	--maskfile=/path/to/masking_file.bed --FilterBinaryCode=1548
+
+# please, notice that
+# 1) --maskfile and --FilterBinaryCode are optional paramemeters
+# 2) --maskfile is expected as a 3 column, tabulated bed file BUT ONE-BASED . 
 set -e
 
 for i in "$@"
