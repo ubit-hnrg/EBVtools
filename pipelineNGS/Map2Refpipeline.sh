@@ -64,7 +64,7 @@ if [ "$mask" != "None" ];then
 	interval=$outp/keeping_intervalZB.bed
 	#Get complement of masing file and name it $interval
 	len=$(awk '/^>/{if (l!="") ;; l=0; next}{l+=length($0)}END{print l}' $referenceEBV)
-	refid=$(head -n1 $mask|cut -f1 -d'>')
+	refid=$(head -n1 $mask|cut -f1)
 	echo -e $refid'\t'$len > $outp/referenceLength.tsv
 
 	## amplio uno a izquierda y uno a derecha porque el complement de bedtools no permite sacar los extremos
