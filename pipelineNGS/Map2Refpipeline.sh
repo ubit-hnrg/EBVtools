@@ -1,29 +1,4 @@
 set -e
-#type='EBV1'
-############################# CAMBIAR EL OUTRIMMED!! VOLVER A AGREGAR /$s/
-
-
-## ARMADO DEL DIRECTORIO ##
-#Generamos una carpeta que contendrá las herramientas de análisis
-# mkdir /home/cata/analisis_NGS
-
-#Dentro de la carpeta "analisis_NGS" generamos las carpetas correspondientes:
-# mkdir /home/cata/analisis_NGS/Coordenadas : contendrá las coordenadas de las regiones repetitivas que queremos eliminar para luego enmascarar con Ns
-# mkdir /home/cata/analisis_NGS/Genoma_Referencia : contendrá el genoma de referencia en formato fasta, el genoma indexado para el mapeo de las reads con BWA y la referencia con Ns en la region repetitiva
-# mkdir /home/cata/analisis_NGS/Trimmed : contendrá el analisis obtenido por fastp y PrintSeq
-# mkdir /home/cata/analisis_NGS/Processed: contendrá el análisis posterior al preprocesamiento 
-
-#Dentro de la carpeta "Coordenadas" generamos 2 carpetas correspondientes al tipo viral
-#mkdir /home/cata/analisis_NGS/Coordenadas/'$type' : contendrá las coordenadas de la región repetitiva de EBV
-
-#Dentro de la carpeta "Genoma_Referencia" generámos 2 carpetas corespondientes al tipo viral:
-#mkdir /home/cata/analisis_NGS/Genoma_Referencia/'$type': contendrá el genoma de referencia del "type" y la referencia con Ns en la región repetitiva
-
-#Indexar el genoma de referencia
-#bwa index /home/cata/analisis_NGS/Genoma_Referencia´/'$type'/'$type'.fa 
-
-#Dentro de la carpeta "Processed" generámos dos carpetas correspondientes al tipo viral
-#mkdir /home/cata/analisis_NGS/Genoma_Referencia/'$type' :contendrá el bam y la consenso generada a partir de las reads pre-procesadas
 
 sample=$1;
 s=$sample #alias
@@ -39,8 +14,11 @@ FilterBinaryCode='1548'
 outp=$outpath/$sample
 mkdir -p $outp
 outtrimmed=$outp/'trimmed'/$s
-maskedReference=$outp/maskedReference.fa
 
+refdir=$outp/refGenomes
+maskedReference=$refdir/maskedReference.fa
+
+mkdir -p $refdir
 #####################################################
 
 
@@ -48,7 +26,7 @@ maskedReference=$outp/maskedReference.fa
 ## Get zero-based bedfile for masking in the right way. 
 
 if [ "$mask" != "None" ];then
-zeroMaskFile=$outp/baskZB.bed
+zeroMaskFile=$outp/maskZB.bed
 
 	cat $mask | while read chr start end 
 	do
@@ -176,6 +154,7 @@ tabix $outvcfbgz
 
 #Cat VCF
 if [ "$mask" != "None" ];then
+	echo 'entro aca'
 	ovcfbgz=$outp/$s.NonRep.calls.vcf.gz
 	outvcf=$outp/$s.NonRep.calls.vcf
 	zgrep '^#' $outvcfgz > header
@@ -185,7 +164,7 @@ if [ "$mask" != "None" ];then
 	bgzip -c $outp/$s.NonRep.calls.vcf > $ovcfbgz
 	tabix $ovcfbgz
 	rm header
-	rm body.vcf
+	#rm body.vcf
 else
 	ovcfbgz=$outvcfbgz
 fi
@@ -215,7 +194,7 @@ fi
 	############################################
 	## get consensus sequence
 	bedtools subtract -a $outp/$s.Cob0.bed -b $deletionfileZeroBased > $outp/$s.COB-DEL.bed
-	NonZeroCoverageReference=$outp/$s'_NonZeroCoverageReference.fa'
+	NonZeroCoverageReference=$refdir/$s'_NonZeroCoverageReference.fa'
 	#/home/cata/EBVtools/mask_reference.py -r $maskedReference -c $outp/$s.COB-DEL.bed -o $modified_reference
 
 if [ "$mask" != "None" ];then
