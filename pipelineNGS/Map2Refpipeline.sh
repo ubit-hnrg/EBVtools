@@ -70,7 +70,7 @@ mkdir -p $outtrimmed
 
 if [ -f "$outtrimmed/$s.good.trimmed_1.fastq.gz" ]; then
 	echo 'skiping preprocessing step'
-elif
+else
 	##Agrupamos los archivos descargados en dos grupos:
 	zcat $inputpath/*_1.fastq.gz |gzip > $outtrimmed/$s.R1.fq.gz
 	zcat $inputpath/*_2.fastq.gz |gzip > $outtrimmed/$s.R2.fq.gz
@@ -101,12 +101,13 @@ if [ "$mask" != "None" ];then
 	bwa index $maskedReference
 fi
 
-if [ "$mask" != "None" ];then
-bwa mem -K 100000000 -v 1 -t 4 $maskedReference \
+if [ "$mask" != "None" ];
+then
+	bwa mem -K 100000000 -v 1 -t 4 $maskedReference \
 	<(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) \
 	<(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outp/$s.bam
-elif
-bwa mem -K 100000000 -v 1 -t 4 $referenceEBV \
+else
+	bwa mem -K 100000000 -v 1 -t 4 $referenceEBV \
 	<(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) \
 	<(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outp/$s.bam
 fi
@@ -119,10 +120,11 @@ samtools sort $outp/$s.mapped.bam > $outp/$s.mapped.sorted.bam
 	
 #Drop out repetitive regions (according to coords file /home/cata/). 
 outbam=$outp/$s.mapped.sorted.withoutrep.bam
-if [ "$mask" != "None" ];then
+if [ "$mask" != "None" ];
+then
 	samtools view -bL $interval $outp/$s.mapped.sorted.bam > $outbam
-elif
-outbam=$outp/$s.mapped.sorted.bam
+else
+	outbam=$outp/$s.mapped.sorted.bam
 fi
 
 #Create bam index
@@ -141,9 +143,10 @@ samtools stats $outbam > $outbam.stats
 #################################################################################################
 ##################################### VARIANT CALLING STEP 
 #Get vcf
-if [ "$mask" != "None" ];then
+if [ "$mask" != "None" ];
+then
 	bcftools mpileup -f $maskedReference $outbam |bcftools call -mv --ploidy 1 -o $outp/$s.calls.vcf
-elif
+else
 	bcftools mpileup -f $referenceEBV $outbam |bcftools call -mv --ploidy 1 -o $outp/$s.calls.vcf
 fi
 
@@ -154,7 +157,8 @@ tabix $outvcfbgz
 
 
 #Cat VCF
-if [ "$mask" != "None" ];then
+if [ "$mask" != "None" ];
+	then
 	ovcfbgz=$outp/$s.NonRep.calls.vcf.gz
 	outvcf=$outp/$s.NonRep.calls.vcf
 	
@@ -165,8 +169,8 @@ if [ "$mask" != "None" ];then
 	bgzip -c $outp/$s.NonRep.calls.vcf > $ovcfbgz
 	tabix $ovcfbgz
 	rm header
-	#rm body.vcf
-elif
+	rm body.vcf
+else
 	ovcfbgz=$outvcfbgz
 fi
 
@@ -185,7 +189,7 @@ fi
 	less $outp/$s.deletion.c.bed |tr ' ' '\t' > $deletionfile
 	rm $outp/$s.deletion.c.bed
 
-	cat $deletionfile | while read chr start end 
+	cat $deletionfile | while read chr start end; 
 	do
 		echo -e $chr'\t'$(($start-1))'\t'$(($end-1)) 
 	done  > $deletionfileZeroBased
@@ -198,12 +202,13 @@ fi
 	NonZeroCoverageReference=$refdir/$s'_NonZeroCoverageReference.fa'
 	#/home/cata/EBVtools/mask_reference.py -r $maskedReference -c $outp/$s.COB-DEL.bed -o $modified_reference
 
-if [ "$mask" != "None" ];then
+if [ "$mask" != "None" ];
+then
 	# mask again but incorpore zero coverage regions
 	bedtools maskfasta -fi $maskedReference -bed $outp/$s.COB-DEL.bed -fo $NonZeroCoverageReference # Ok, the bedfile is zero-based
 	outConsensus=$outp/$s.nonrep.nonzero.consensus.fa
-elif
+else
 	bedtools maskfasta -fi $referenceEBV -bed $outp/$s.COB-DEL.bed -fo $NonZeroCoverageReference # Ok, the bedfile is zero-based
 	outConsensus=$outp/$s.nonzero.consensus.fa
-
+fi
 bcftools consensus -f $NonZeroCoverageReference $ovcfbgz > $outConsensus
