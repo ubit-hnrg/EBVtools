@@ -21,10 +21,14 @@ refdir=$outp/refGenomes
 intervaldir=$outp/intervals
 maskedReference=$refdir/maskedReference.fa
 statsdir=$outp/stats
+bamfolder=$outp/bams
+vcffolder=$outp/vcfs
 
 mkdir -p $refdir
 mkdir -p $intervaldir
 mkdir -p $statsdir
+mkdir -p $bamfolder
+mkdir -p $vcffolder
 #####################################################
 
 
@@ -110,33 +114,33 @@ if [ "$mask" != "None" ];
 then
 	bwa mem -K 100000000 -v 1 -t 4 $maskedReference \
 	<(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) \
-	<(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outp/$s.bam
+	<(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $bamfolder/$s.bam
 else
 	bwa mem -K 100000000 -v 1 -t 4 $referenceEBV \
 	<(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) \
-	<(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outp/$s.bam
+	<(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $bamfolder/$s.bam
 fi
 
 #Remove duplicates and unmapped reads
-samtools view -b -F $FilterBinaryCode $outp/$s.bam > $outp/$s.mapped.bam  
+samtools view -b -F $FilterBinaryCode $bamfolder/$s.bam > $bamfolder/$s.mapped.bam  
 	
 #Sort bam
-samtools sort $outp/$s.mapped.bam > $outp/$s.mapped.sorted.bam
+samtools sort $bamfolder/$s.mapped.bam > $bamfolder/$s.mapped.sorted.bam
 	
 #Drop out repetitive regions (according to coords file /home/cata/). 
-outbam=$outp/$s.mapped.sorted.withoutrep.bam
+outbam=$bamfolder/$s.mapped.sorted.withoutrep.bam
 if [ "$mask" != "None" ];
 then
 	samtools view -bL $interval $outp/$s.mapped.sorted.bam > $outbam
 else
-	outbam=$outp/$s.mapped.sorted.bam
+	outbam=$bamfolder/$s.mapped.sorted.bam
 fi
 
 #Create bam index
 samtools index $outbam
 
 #Compute statistics for whole bam
-samtools stats $outp/$s.bam > $statsdir/$s.stats
+samtools stats $bamfolder/$s.bam > $statsdir/$s.stats
 #Compute statistics for final bam (without repetitive regions nither unmapped reads)
 bn=$(basename $outbam)
 
@@ -152,31 +156,31 @@ samtools stats $outbam > $statsdir/$bn.stats
 #Get vcf
 if [ "$mask" != "None" ];
 then
-	bcftools mpileup -f $maskedReference $outbam |bcftools call -mv --ploidy 1 -o $outp/$s.calls.vcf
+	bcftools mpileup -f $maskedReference $outbam |bcftools call -mv --ploidy 1 -o $vcffolder/$s.calls.vcf
 else
-	bcftools mpileup -f $referenceEBV $outbam |bcftools call -mv --ploidy 1 -o $outp/$s.calls.vcf
+	bcftools mpileup -f $referenceEBV $outbam |bcftools call -mv --ploidy 1 -o $vcffolder/$s.calls.vcf
 fi
 
-outvcf=$outp/$s.calls.vcf
-outvcfbgz=$outp/$s.calls.vcf.gz
-bgzip -c $outp/$s.calls.vcf > $outvcfbgz
+outvcf=$vcffolder/$s.calls.vcf
+outvcfbgz=$vcffolder/$s.calls.vcf.gz
+bgzip -c $vcffolder/$s.calls.vcf > $outvcfbgz
 tabix $outvcfbgz
 
 
 #Cat VCF
 if [ "$mask" != "None" ];
 	then
-	ovcfbgz=$outp/$s.NonRep.calls.vcf.gz
-	outvcf=$outp/$s.NonRep.calls.vcf
+	ovcfbgz=$vcffolder/$s.NonRep.calls.vcf.gz
+	outvcf=$vcffolder/$s.NonRep.calls.vcf
 	
-	zgrep '^#' $outvcfbgz > $outp/header
-	intersectBed -wa -a $outvcfbgz -b $interval > $outp/body.vcf  ### 
+	zgrep '^#' $outvcfbgz > $vcffolder/header
+	intersectBed -wa -a $outvcfbgz -b $interval > $vcffolder/body.vcf  ### 
 	#intersectBed -wa -v -a $outvcfbgz -b /data/EBV/analisis_NGS/Coordenadas/$type/repetitive.$type > body.vcf 
-	cat $outp/header $outp/body.vcf > $outvcf
-	bgzip -c $outp/$s.NonRep.calls.vcf > $ovcfbgz
+	cat $vcffolder/header $vcffolder/body.vcf > $outvcf
+	bgzip -c $vcffolder/$s.NonRep.calls.vcf > $ovcfbgz
 	tabix $ovcfbgz
-	rm $outp/header
-	rm $outp/body.vcf
+	rm $vcffolder/header
+	rm $vcffolder/body.vcf
 else
 	ovcfbgz=$outvcfbgz
 fi
