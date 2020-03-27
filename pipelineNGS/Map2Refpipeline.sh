@@ -24,8 +24,8 @@ case $i in
     maskfile="${i#*=}"
 
     ;;
-    -m=*|--maskfile=*)  # this expect one-based bedfile for masking reference
-    maskfile="${i#*=}"
+    -F=*|--FilterBinaryCode=*)  
+    FilterBinaryCode="${i#*=}"
 
     ;;
     
@@ -33,7 +33,9 @@ case $i in
             # unknown option
     ;;
 esac
-    
+	#default paramenters
+	maskfile='None'
+    FilterBinaryCode="1548"
 done
 
 ####################################################
@@ -46,7 +48,6 @@ outtrimmed=$outp/'trimmed'/$s
 s=$sample #alias
 referenceEBV=$reference
 mask=$maskfile
-FilterBinaryCode='1548'
 
 inputs=$outpath/$sample/inputs.log
 echo 'runing parameters'>$inputs
