@@ -62,7 +62,7 @@ s=$sample
 
 if [ -f "$outtrimmed/$s.good.trimmed_1.fastq.gz" ]; then
 	echo 'skiping preprocessing step'
-else:
+else
 	##Agrupamos los archivos descargados en dos grupos:
 	zcat $inputdir/$s/*_1.fastq.gz |gzip > $outtrimmed/$s.R1.fq.gz
 	zcat $inputdir/$s/*_2.fastq.gz |gzip > $outtrimmed/$s.R2.fq.gz
@@ -87,7 +87,7 @@ fi
 ################     maping stage      #################
 
 	#Map to reference
-bwa mem -K 100000000 -v 1 -t 4 $referenceEBV <(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) <(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outpath/$s/$s.bam
+	bwa mem -K 100000000 -v 1 -t 4 $referenceEBV <(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) <(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outpath/$s/$s.bam
 	
 	#Remove duplicates and unmapped reads
 	samtools view -b -F $FilterBinaryCode $outpath/$s/$s.bam > $outpath/$s/$s.mapped.bam  
