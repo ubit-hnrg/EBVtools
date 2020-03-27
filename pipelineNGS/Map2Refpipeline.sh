@@ -32,13 +32,22 @@ esac
     
 done
 
-sample=$1;
+#sample=$1;
 s=$sample #alias
-inputpath=$2
-outpath=$3
+#inputpath=$2
+#outpath=$3
 referenceEBV=$reference
 mask=$maskfile
 FilterBinaryCode='1548'
+
+echo 'runing parameters'
+
+echo 'sample: '$sample
+echo 'input directory: '$inputpath
+echo 'output direrctory: '$outpath
+echo 'reference file: '$reference
+echo 'barcode for filtering: '$FilterBinaryCode
+echo 'Masking File: '$mask
 
 ####################################################
 # create output path if do not exist
