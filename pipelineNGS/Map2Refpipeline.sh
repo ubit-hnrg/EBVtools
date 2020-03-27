@@ -24,6 +24,10 @@ case $i in
     maskfile="${i#*=}"
 
     ;;
+    -m=*|--maskfile=*)  # this expect one-based bedfile for masking reference
+    maskfile="${i#*=}"
+
+    ;;
     
     *)
             # unknown option
@@ -32,10 +36,14 @@ esac
     
 done
 
-#sample=$1;
+####################################################
+# create output path if do not exist
+# create variables for writing outputs
+outp=$outpath/$sample
+mkdir -p $outp
+outtrimmed=$outp/'trimmed'/$s
+
 s=$sample #alias
-#inputpath=$2
-#outpath=$3
 referenceEBV=$reference
 mask=$maskfile
 FilterBinaryCode='1548'
@@ -49,12 +57,6 @@ echo 'reference file: '$reference >>$inputs
 echo 'barcode for filtering: '$FilterBinaryCode >>$inputs
 echo 'Masking File: '$mask >>$inputs
 
-####################################################
-# create output path if do not exist
-# create variables for writing outputs
-outp=$outpath/$sample
-mkdir -p $outp
-outtrimmed=$outp/'trimmed'/$s
 
 refdir=$outp/refGenomes
 intervaldir=$outp/intervals
