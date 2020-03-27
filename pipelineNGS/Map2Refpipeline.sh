@@ -85,8 +85,6 @@ else
 	rm $outtrimmed/$s.*.trimmed.fq
 fi
 ################     maping stage      #################
-for s in "${samples[@]}"
-do
 	#Map to reference
 	bwa mem -K 100000000 -v 1 -t 4 $referenceEBV <(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) <(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outpath/$s/$s.bam
 	
