@@ -25,21 +25,25 @@ set -e
 #Dentro de la carpeta "Processed" generámos dos carpetas correspondientes al tipo viral
 #mkdir /home/cata/analisis_NGS/Genoma_Referencia/'$type' :contendrá el bam y la consenso generada a partir de las reads pre-procesadas
 
-sample=$1
+sample=$1;
+s=$sample #alias
 inputpath=$2
 outpath=$3
 referenceEBV=$4
 mask=$5
 FilterBinaryCode='1548'
 
+####################################################
 # create output path if do not exist
+# create variables for writing outputs
 mkdir -p $outpath/$sample
-
-#refLen=$outpath/$sample/referenceLength.txt
-#complementInterval=$outpath/$sample/ComplementInterval.txt
 zeroMaskFile=$outpath/zero-based-mask.bed
 maskedReference=$outpath/maskedReference.fa
+outtrimmed=$outpath/'trimmed'/$s
+#####################################################
 
+
+###############################################################################
 ## Get zero-based bedfile for masking in the right way. 
 cat $mask | while read chr start end 
 do
@@ -48,24 +52,16 @@ done  > $zeroMaskFile
 
 # mask original reference
 bedtools maskfasta -fi $referenceEBV -bed $zeroMaskFile -fo $maskedReference
-
-
-#samples=($(ls /data/EBV/ncbi/bySRAid/)) #localización de las muestras
-
-#outpath='/data/EBV/analisis_NGS/Processed/'$type #localización del archivo final
-#outtrimmed='/data/EBV/analisis_NGS/Trimmed' #localización de las reads pre y post trimming y eliminación de duplicados
-outtrimmed=$outpath/'trimmed'/$s
+################################################################################
 
 #cat $samplefile |while read s;
 #	do
-s=$sample
-echo 'processing sample id: '$s
-##Generamos una nueva carpeta dentro del directorio Trimmed que contendrá las lecturas resultantes del preprocesamiento de las muestras
-mkdir -p $outtrimmed  
-
 
 ################## PREPROCESSING #################
 ########### ONLY PERFORM THIS STEP IF PREPROCESSED FILE DO NOT EXIST ###########
+echo 'processing sample id: '$s
+##Generamos una nueva carpeta dentro del directorio Trimmed que contendrá las lecturas resultantes del preprocesamiento de las muestras
+mkdir -p $outtrimmed  
 
 if [ -f "$outtrimmed/$s.good.trimmed_1.fastq.gz" ]; then
 	echo 'skiping preprocessing step'
@@ -94,7 +90,9 @@ fi
 
 ################     maping stage      #################
 	#Map to reference
-#bwa mem -K 100000000 -v 1 -t 4 $referenceEBV <(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) <(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outpath/$s/$s.bam
+bwa mem -K 100000000 -v 1 -t 4 $maskedReference \
+	<(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) \
+	<(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outpath/$s/$s.bam
 	
 	#Remove duplicates and unmapped reads
 	samtools view -b -F 1548 $outpath/$s/$s.bam > $outpath/$s/$s.mapped.bam  
