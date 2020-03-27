@@ -45,7 +45,7 @@ bedtools maskfasta -fi $referenceEBV -bed $interval -fo $maskedReference
 
 #outpath='/data/EBV/analisis_NGS/Processed/'$type #localización del archivo final
 #outtrimmed='/data/EBV/analisis_NGS/Trimmed' #localización de las reads pre y post trimming y eliminación de duplicados
-outtrimmed=$inputdir/'trimmed'
+outtrimmed=$outpath/'trimmed'
 
 
 #cat $samplefile |while read s;
@@ -64,8 +64,8 @@ if [ -f "$outtrimmed/$s.good.trimmed_1.fastq.gz" ]; then
 	echo 'skiping preprocessing step'
 else
 	##Agrupamos los archivos descargados en dos grupos:
-	zcat $inputdir/$s/*_1.fastq.gz |gzip > $outtrimmed/$s.R1.fq.gz
-	zcat $inputdir/$s/*_2.fastq.gz |gzip > $outtrimmed/$s.R2.fq.gz
+	zcat $inputdir/*_1.fastq.gz |gzip > $outtrimmed/$s.R1.fq.gz
+	zcat $inputdir/*_2.fastq.gz |gzip > $outtrimmed/$s.R2.fq.gz
 
 	##Trimmed y eliminacion de lecturas con baja calidad
 	fastp --disable_adapter_trimming -i $outtrimmed/$s.R1.fq.gz -I $outtrimmed/$s.R2.fq.gz -o $outtrimmed/$s.R1.trimmed.fq.gz \
