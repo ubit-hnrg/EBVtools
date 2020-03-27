@@ -29,23 +29,32 @@ sample=$1
 inputdir=$2
 outpath=$3
 referenceEBV=$4
-interval=$5
+mask=$5
 FilterBinaryCode='1548'
 
-#referenceEBV='/data/EBV/analisis_NGS/Genoma_Referencia/'$type'/*.fa'  #localización de la secuencia de referencia indexada
-#reference='/data/EBV/analisis_NGS/Genoma_Referencia/'$type'/*NNN.fasta' #localizacion de la secuencia de referencia enmascarada con Ns en las zonas repetitivas
-#interval='/data/EBV/analisis_NGS/Coordenadas/'$type'/Coordenadas.'$type #coordenadas para eliminar del bam
-
-## Mask reference
+# create output path if do not exist
 mkdir -p $outpath/$sample
-maskedReference=$outpath/'maskedReference.fa'
-bedtools maskfasta -fi $referenceEBV -bed $interval -fo $maskedReference
+
+#refLen=$outpath/$sample/referenceLength.txt
+#complementInterval=$outpath/$sample/ComplementInterval.txt
+zeroMaskFile=$outpath/zero-based-mask.bed
+maskedReference=$outpath/maskedReference.fa
+
+## Get zero-based bedfile for masking in the right way. 
+cat $mask | while read chr start end 
+do
+    echo -e $chr'\t'$(($start-1))'\t'$(($end-2)) 
+done  > $zeroMaskFile
+
+# mask original reference
+bedtools maskfasta -fi $referenceEBV -bed $zeroMaskFile -fo $maskedReference
+
 
 #samples=($(ls /data/EBV/ncbi/bySRAid/)) #localización de las muestras
 
 #outpath='/data/EBV/analisis_NGS/Processed/'$type #localización del archivo final
 #outtrimmed='/data/EBV/analisis_NGS/Trimmed' #localización de las reads pre y post trimming y eliminación de duplicados
-outtrimmed=$outpath/'trimmed'
+outtrimmed=$outpath/'trimmed'/$s
 
 
 #cat $samplefile |while read s;
