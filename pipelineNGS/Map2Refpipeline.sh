@@ -1,13 +1,43 @@
 #!/bin/bash
 set -e
 
+for i in "$@"
+do
+case $i in
+    -S=*|--sample=*)
+    sample="${i#*=}"
+
+    ;;
+    -i=*|--inputpath=*)
+    inputpath="${i#*=}"
+
+    ;;
+    -o=*|--outpath=*)
+    outpath="${i#*=}"
+
+    ;;
+    -r=*|--reference=*)
+    reference="${i#*=}"
+
+    ;;
+    -m=*|--maskfile=*)  # this expect one-based bedfile for masking reference
+    maskfile="${i#*=}"
+
+    ;;
+    
+    *)
+            # unknown option
+    ;;
+esac
+    
+done
 
 sample=$1;
 s=$sample #alias
 inputpath=$2
 outpath=$3
-referenceEBV=$4
-mask=$5
+referenceEBV=$reference
+mask=$maskfile
 FilterBinaryCode='1548'
 
 ####################################################
