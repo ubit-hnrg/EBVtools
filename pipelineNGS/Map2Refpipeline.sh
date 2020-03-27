@@ -1,6 +1,6 @@
 set -e
 #type='EBV1'
-
+############################# CAMBIAR EL OUTRIMMED!! VOLVER A AGREGAR /$s/
 
 
 ## ARMADO DEL DIRECTORIO ##
@@ -90,7 +90,7 @@ fi
 bwa mem -K 100000000 -v 1 -t 4 $referenceEBV <(zcat $outtrimmed/$s.good.trimmed_1.fastq.gz) <(zcat $outtrimmed/$s.good.trimmed_2.fastq.gz) | samtools view -b - > $outpath/$s/$s.bam
 	
 	#Remove duplicates and unmapped reads
-	samtools view -b -F $FilterBinaryCode $outpath/$s/$s.bam > $outpath/$s/$s.mapped.bam  
+	samtools view -b -F 1548 $outpath/$s/$s.bam > $outpath/$s/$s.mapped.bam  
 	
 	#Sort bam
 	samtools sort $outpath/$s/$s.mapped.bam > $outpath/$s/$s.mapped.sorted.bam
