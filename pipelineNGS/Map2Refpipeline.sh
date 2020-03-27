@@ -30,7 +30,7 @@ inputdir=$2
 outpath=$3
 referenceEBV=$4
 interval=$5
-$FilterBinaryCode=1548
+$FilterBinaryCode='1548'
 
 #referenceEBV='/data/EBV/analisis_NGS/Genoma_Referencia/'$type'/*.fa'  #localización de la secuencia de referencia indexada
 #reference='/data/EBV/analisis_NGS/Genoma_Referencia/'$type'/*NNN.fasta' #localizacion de la secuencia de referencia enmascarada con Ns en las zonas repetitivas
