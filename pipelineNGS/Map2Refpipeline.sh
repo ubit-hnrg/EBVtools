@@ -52,7 +52,7 @@ done
 # create variables for writing outputs
 outp=$outpath/$sample
 mkdir -p $outp
-outtrimmed=$outp/'trimmed'/$s
+outtrimmed=$outp/'trimmed'/$sample
 
 s=$sample #alias
 referenceEBV=$reference
