@@ -150,7 +150,11 @@ else
 	prinseq-lite -fastq $outtrimmed/$s.R1.trimmed.fq -fastq2 $outtrimmed/$s.R2.trimmed.fq -out_good $outtrimmed/$s.good.trimmed $outtrimmed/$s.good.trimmed -derep 1
 	gzip $outtrimmed/$s.good.trimmed_1.fastq
 	gzip $outtrimmed/$s.good.trimmed_2.fastq
+	# Liberamos espacio
 	rm $outtrimmed/$s.*.trimmed.fq
+	rm $outtrimmed/$s.*.trimmed.fq.gz
+	rm $outtrimmed/$s*bad.fastq 
+
 fi
 
 
@@ -196,6 +200,15 @@ samtools stats $bamfolder/$s.bam > $statsdir/$s.stats
 bn=$(basename $outbam)
 
 samtools stats $outbam > $statsdir/$bn.stats
+
+# liberamos espacio
+rm $bamfolder/$s.bam
+rm $bamfolder/$s.mapped.bam
+if [ "$mask" != "None" ];
+then
+	rm $bamfolder/$s.mapped.sorted.bam  # si hay masking, este no es el definitivo. Sin masking no puedo borrarolo. 
+fi
+
 
 #### end mapping stage (including bam statistics)
 #################################################################################################
