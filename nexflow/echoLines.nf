@@ -2,7 +2,7 @@
 
 params.in = "$HOME/input.txt"
 
-sampllefile = file(params.in)
+samplefile = file(params.in)
 allSamples  = samplefile.readLines()
 
 process echoS {
