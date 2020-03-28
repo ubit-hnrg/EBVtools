@@ -13,7 +13,7 @@ ipath = file(params.ipath)
 opath = file(params.opath)
 ref = file(params.ref)
 mask = file(params.mask)
-sh = params.command
+sh = file(params.cmd)
 
 
 process pipeline {
@@ -24,7 +24,7 @@ process pipeline {
     val op from opath
     val reference from ref
     val maskf from mask
-    file sh
+    val cmd from sh
 
 
     output:
@@ -32,7 +32,7 @@ process pipeline {
 
     script:
     """
-    $sh --sample=$samp --inputpath=$ip/$samp --outpath=$op --reference=$reference --maskfile=$maskf
+    $cmd --sample=$samp --inputpath=$ip/$samp --outpath=$op --reference=$reference --maskfile=$maskf
     """
 
 }
