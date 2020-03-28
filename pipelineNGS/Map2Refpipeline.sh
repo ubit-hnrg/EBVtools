@@ -155,12 +155,12 @@ else
 	rm $outtrimmed/$s.R1.fq.gz
 	rm $outtrimmed/$s.R1.trimmed.fq
 	rm $outtrimmed/$s.R1.trimmed.fq.gz
-	#rm $outtrimmed/$s.bad.trimmed_1.fastq
+	rm $outtrimmed/$s.bad.trimmed_1.fastq
 
 	rm $outtrimmed/$s.R2.trimmed.fq
 	rm $outtrimmed/$s.R2.fq.gz
 	rm $outtrimmed/$s.R2.trimmed.fq.gz
-	#rm $outtrimmed/$s.bad.trimmed_2.fastq
+	rm $outtrimmed/$s.bad.trimmed_2.fastq
 
 fi
 
@@ -279,7 +279,10 @@ fi
 	## get consensus sequence
 	bedtools subtract -a $intervaldir/$s.Cob0.bed -b $deletionfileZeroBased > $intervaldir/$s.COB-DEL.bed
 	NonZeroCoverageReference=$refdir/$s'_NonZeroCoverageReference.fa'
-	#/home/cata/EBVtools/mask_reference.py -r $maskedReference -c $outp/$s.COB-DEL.bed -o $modified_reference
+	
+	# change its name
+	refidentifier=$(head -n1 $NonZeroCoverageReference|cut -f2 -d'>' )
+	sed -i "s/$refidentifier/$s/g" $NonZeroCoverageReference
 
 if [ "$mask" != "None" ];
 then
@@ -291,3 +294,4 @@ else
 	outConsensus=$outp/$s.nonzero.consensus.fa
 fi
 bcftools consensus -f $NonZeroCoverageReference $ovcfbgz > $outConsensus
+
