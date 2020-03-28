@@ -5,7 +5,7 @@ params.ipath = ""
 params.opath = ""
 params.ref = ""
 params.mask = ""
-params.filterCode = "1548"
+params.filtercode = ""
 
 samplefile = file(params.sf)
 allSamples  = samplefile.readLines()
