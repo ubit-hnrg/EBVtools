@@ -7,7 +7,7 @@ params.ref = ""
 params.mask = ""
 params.filterCode = "1548"
 
-samplefile = file(params.in)
+samplefile = file(params.sf)
 allSamples  = samplefile.readLines()
 ipath = file(params.ipath)
 opath = file(params.opath)
