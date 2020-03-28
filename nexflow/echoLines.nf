@@ -15,7 +15,7 @@ process echoS {
 
     script:
     """
-    echo $STR
+    echo $str
     """
 
 }
