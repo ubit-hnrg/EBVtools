@@ -75,10 +75,15 @@ statsdir=$outp/stats
 bamfolder=$outp/bams
 vcffolder=$outp/vcfs
 
+echo '1'
 mkdir -p $refdir
+echo '2'
 mkdir -p $intervaldir
+echo '3'
 mkdir -p $statsdir
+echo '4'
 mkdir -p $bamfolder
+echo '5'
 mkdir -p $vcffolder
 #####################################################
 
