@@ -147,13 +147,19 @@ else
 	gzip -c -d $outtrimmed/$s.R2.trimmed.fq.gz > $outtrimmed/$s.R2.trimmed.fq
 	
     ##Remove duplicates
-	prinseq-lite -fastq $outtrimmed/$s.R1.trimmed.fq -fastq2 $outtrimmed/$s.R2.trimmed.fq -out_good $outtrimmed/$s.good.trimmed $outtrimmed/$s.good.trimmed -derep 1
+	prinseq-lite -fastq $outtrimmed/$s.R1.trimmed.fq -fastq2 $outtrimmed/$s.R2.trimmed.fq -out_good $outtrimmed/$s.good.trimmed -out_bad $outtrimmed/$s.bad.trimmed $outtrimmed/$s.good.trimmed -derep 1
 	gzip $outtrimmed/$s.good.trimmed_1.fastq
 	gzip $outtrimmed/$s.good.trimmed_2.fastq
 	# Liberamos espacio
-	rm $outtrimmed/$s.*trimmed.fq
-	rm $outtrimmed/$s.*trimmed.fq.gz
-	rm $outtrimmed/$s*bad*fastq 
+	rm $outtrimmed/$s.R1.fq.gz
+	rm $outtrimmed/$s.R1.trimmed.fq
+	rm $outtrimmed/$s.R1.trimmed.fq.gz
+	#rm $outtrimmed/$s.bad.trimmed_1.fastq
+
+	rm $outtrimmed/$s.R2.trimmed.fq
+	rm $outtrimmed/$s.R2.fq.gz
+	rm $outtrimmed/$s.R1.trimmed.fq.g
+	#rm $outtrimmed/$s.bad.trimmed_2.fastq
 
 fi
 
