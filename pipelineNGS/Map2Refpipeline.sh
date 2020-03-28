@@ -158,7 +158,7 @@ else
 
 	rm $outtrimmed/$s.R2.trimmed.fq
 	rm $outtrimmed/$s.R2.fq.gz
-	rm $outtrimmed/$s.R1.trimmed.fq.g
+	rm $outtrimmed/$s.R1.trimmed.fq.gz
 	#rm $outtrimmed/$s.bad.trimmed_2.fastq
 
 fi
