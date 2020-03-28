@@ -8,7 +8,7 @@ allSamples  = samplefile.readLines()
 process echoS {
 
     input:
-    val str  from samples
+    val str from allsamples
 
     output:
     stdout result 
