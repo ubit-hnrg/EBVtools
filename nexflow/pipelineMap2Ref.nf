@@ -11,7 +11,7 @@ samplefile = file(params.in)
 allSamples  = samplefile.readLines()
 ipath = file(params.ipath)
 opath = file(params.opath)
-ref = file(params.ref
+ref = file(params.ref)
 mask = file(params.mask)
 filterCode = file(params.filterCode)
 
