@@ -280,9 +280,6 @@ fi
 	bedtools subtract -a $intervaldir/$s.Cob0.bed -b $deletionfileZeroBased > $intervaldir/$s.COB-DEL.bed
 	NonZeroCoverageReference=$refdir/$s'_NonZeroCoverageReference.fa'
 	
-	# change its name
-	refidentifier=$(head -n1 $NonZeroCoverageReference|cut -f2 -d'>' )
-	sed -i "s/$refidentifier/$s/g" $NonZeroCoverageReference
 
 if [ "$mask" != "None" ];
 then
@@ -293,5 +290,11 @@ else
 	bedtools maskfasta -fi $referenceEBV -bed $intervaldir/$s.COB-DEL.bed -fo $NonZeroCoverageReference # Ok, the bedfile is zero-based
 	outConsensus=$outp/$s.nonzero.consensus.fa
 fi
+
+
+# Before generate the consensus sequence, change the sammplename into the reference.fa
+	refidentifier=$(head -n1 $NonZeroCoverageReference|cut -f2 -d'>')
+	sed -i "s/$refidentifier/$s/g" $NonZeroCoverageReference
+
 bcftools consensus -f $NonZeroCoverageReference $ovcfbgz > $outConsensus
 
