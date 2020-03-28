@@ -151,6 +151,7 @@ else
 	gzip $outtrimmed/$s.good.trimmed_1.fastq
 	gzip $outtrimmed/$s.good.trimmed_2.fastq
 	# Liberamos espacio
+
 	rm $outtrimmed/$s.R1.fq.gz
 	rm $outtrimmed/$s.R1.trimmed.fq
 	rm $outtrimmed/$s.R1.trimmed.fq.gz
@@ -158,7 +159,7 @@ else
 
 	rm $outtrimmed/$s.R2.trimmed.fq
 	rm $outtrimmed/$s.R2.fq.gz
-	rm $outtrimmed/$s.R1.trimmed.fq.gz
+	rm $outtrimmed/$s.R2.trimmed.fq.gz
 	#rm $outtrimmed/$s.bad.trimmed_2.fastq
 
 fi
