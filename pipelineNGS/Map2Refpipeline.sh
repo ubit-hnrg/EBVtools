@@ -151,9 +151,9 @@ else
 	gzip $outtrimmed/$s.good.trimmed_1.fastq
 	gzip $outtrimmed/$s.good.trimmed_2.fastq
 	# Liberamos espacio
-	rm $outtrimmed/$s.*.trimmed.fq
-	rm $outtrimmed/$s.*.trimmed.fq.gz
-	rm $outtrimmed/$s*bad.fastq 
+	rm $outtrimmed/$s.*trimmed.fq
+	rm $outtrimmed/$s.*trimmed.fq.gz
+	rm $outtrimmed/$s*bad*fastq 
 
 fi
 
@@ -180,16 +180,17 @@ fi
 samtools view -b -F $FilterBinaryCode $bamfolder/$s.bam > $bamfolder/$s.mapped.bam  
 	
 #Sort bam
-samtools sort $bamfolder/$s.mapped.bam > $bamfolder/$s.mapped.sorted.bam
+outbam=$bamfolder/$s.mapped.sorted.bam
+samtools sort $bamfolder/$s.mapped.bam > $outbam
 	
 #Drop out repetitive regions (according to coords file /home/cata/). 
-outbam=$bamfolder/$s.mapped.sorted.withoutrep.bam
-if [ "$mask" != "None" ];
-then
-	samtools view -bL $interval $bamfolder/$s.mapped.sorted.bam > $outbam
-else
-	outbam=$bamfolder/$s.mapped.sorted.bam
-fi
+#if [ "$mask" != "None" ];
+#then
+#	outbam=$bamfolder/$s.mapped.sorted.withoutrep.bam
+#	samtools view -bL $interval $bamfolder/$s.mapped.sorted.bam > $outbam
+#else
+#	
+#fi
 
 #Create bam index
 samtools index $outbam
@@ -204,10 +205,6 @@ samtools stats $outbam > $statsdir/$bn.stats
 # liberamos espacio
 rm $bamfolder/$s.bam
 rm $bamfolder/$s.mapped.bam
-if [ "$mask" != "None" ];
-then
-	rm $bamfolder/$s.mapped.sorted.bam  # si hay masking, este no es el definitivo. Sin masking no puedo borrarolo. 
-fi
 
 
 #### end mapping stage (including bam statistics)
