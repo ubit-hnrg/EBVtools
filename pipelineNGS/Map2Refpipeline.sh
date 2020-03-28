@@ -292,9 +292,10 @@ else
 fi
 
 
-# Before generate the consensus sequence, change the sammplename into the reference.fa
-	refidentifier=$(head -n1 $NonZeroCoverageReference|cut -f2 -d'>')
-	sed -i "s/$refidentifier/$s/g" $NonZeroCoverageReference
 
 bcftools consensus -f $NonZeroCoverageReference $ovcfbgz > $outConsensus
+
+# Change name in consensus sequence, change the sammplename into the reference.fa
+refidentifier=$(head -n1 $outConsensus|cut -f2 -d'>')
+sed -i "s/$refidentifier/$s/g" $outConsensus
 
