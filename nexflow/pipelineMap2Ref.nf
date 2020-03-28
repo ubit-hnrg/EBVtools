@@ -1,19 +1,20 @@
 #!/usr/bin/env nextflow
 
+params.command = ""
 params.sf = ""
 params.ipath = ""
 params.opath = ""
 params.ref = ""
 params.mask = ""
-params.command = ""
 
+command = file(params.command)
 samplefile = file(params.sf)
 allSamples  = samplefile.readLines()
 ipath = file(params.ipath)
 opath = file(params.opath)
 ref = file(params.ref)
 mask = file(params.mask)
-command = file(params.command)
+
 
 process pipeline {
 
