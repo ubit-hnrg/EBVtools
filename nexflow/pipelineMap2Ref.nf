@@ -30,7 +30,7 @@ process pipeline {
 
     script:
     """
-    /home/hnrg/repos/EBVtools/pipelineNGS/Map2Refpipeline.sh --sample=$samp --inputpath=$ip --outpath=$op --reference=$reference --mask=$maskf
+    /home/hnrg/repos/EBVtools/pipelineNGS/Map2Refpipeline.sh --sample=$samp --inputpath=$ip --outpath=$op --reference=$reference --mask=$maskf --FilterBinaryCode=$filterCode
     """
 
 }
