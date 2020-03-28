@@ -7,7 +7,7 @@ params.opath = ""
 params.ref = ""
 params.mask = ""
 
-command = file(params.command)
+command = params.command
 samplefile = file(params.sf)
 allSamples  = samplefile.readLines()
 ipath = file(params.ipath)
