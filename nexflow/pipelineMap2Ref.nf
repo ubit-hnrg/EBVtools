@@ -13,7 +13,7 @@ ipath = file(params.ipath)
 opath = file(params.opath)
 ref = file(params.ref)
 mask = file(params.mask)
-filterCode = file(params.filterCode)
+filtercode = file(params.filtercode)
 
 process pipeline {
 
@@ -23,6 +23,7 @@ process pipeline {
     val op from opath
     val reference from ref
     val maskf from mask
+    val fc from filtercode
 
 
     output:
@@ -30,7 +31,7 @@ process pipeline {
 
     script:
     """
-    /home/hnrg/repos/EBVtools/pipelineNGS/Map2Refpipeline.sh --sample=$samp --inputpath=$ip --outpath=$op --reference=$reference --mask=$maskf --FilterBinaryCode=$filterCode
+    /home/hnrg/repos/EBVtools/pipelineNGS/Map2Refpipeline.sh --sample=$samp --inputpath=$ip --outpath=$op --reference=$reference --mask=$maskf --FilterBinaryCode=$fc
     """
 
 }
