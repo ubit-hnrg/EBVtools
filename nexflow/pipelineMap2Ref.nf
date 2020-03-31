@@ -37,6 +37,7 @@ process pipeline {
 
     script:
     """
+    echo $maskf;
     $cmd --sample=$samp --inputpath=$ip/$samp --outpath=$op --reference=$reference --maskfile=$maskf --FilterBinaryCode=$fcode
     """
 
