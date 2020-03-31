@@ -32,8 +32,8 @@ case $i in
     reference="${i#*=}"
 
     ;;
-    -m=*|--maskfile=*)  # this expect one-based bedfile for masking reference
-    maskfile="${i#*=}"
+    -m=*|--mask=*)  # this expect one-based bedfile for masking reference
+    mask="${i#*=}"
 
     ;;
     -F=*|--FilterBinaryCode=*)  
@@ -56,7 +56,7 @@ outtrimmed=$outp/'trimmed'/$sample
 
 s=$sample #alias
 referenceEBV=$reference
-mask=$maskfile
+#mask=$maskfile
 
 inputs=$outpath/$sample/inputs.log
 echo 'runing parameters'>$inputs
