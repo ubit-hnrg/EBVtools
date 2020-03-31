@@ -262,22 +262,16 @@ fi
 
 	#Deletion
 	deletionfile=$intervaldir/$s.deletion.bed
-	deletionfileZeroBased=$intervaldir/$s.deletionZB.bed
 	vcf2bed -n < $outvcf > $deletionfile  # Cata this file is One-based, so you can't mix it directly with bedfiles as Cob0.bed
 	less $deletionfile | awk '{print $1, $2, $3}' > $intervaldir/$s.deletion.c.bed
 	less $intervaldir/$s.deletion.c.bed |tr ' ' '\t' > $deletionfile
 	rm $intervaldir/$s.deletion.c.bed
-
-	cat $deletionfile | while read chr start end; 
-	do
-		echo -e $chr'\t'$(($start-1))'\t'$(($end-1)) 
-	done  > $deletionfileZeroBased
-
+	# this file is  zero based
 	
 	
 	############################################
 	## get consensus sequence
-	bedtools subtract -a $intervaldir/$s.Cob0.bed -b $deletionfileZeroBased > $intervaldir/$s.COB-DEL.bed
+	bedtools subtract -a $intervaldir/$s.Cob0.bed -b $deletionfile > $intervaldir/$s.COB-DEL.bed
 	NonZeroCoverageReference=$refdir/$s'_NonZeroCoverageReference.fa'
 	
 
