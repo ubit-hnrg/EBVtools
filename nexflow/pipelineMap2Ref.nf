@@ -21,6 +21,8 @@ fc = params.filtercode
 
 process pipeline {
 
+    errorStrategy 'ignore'
+
     input:
     val samp from allSamples
     val ip from ipath
