@@ -133,9 +133,9 @@ if [ -f "$outtrimmed/$s.good.trimmed_1.fastq.gz" ]; then
 else
 	##Agrupamos los archivos descargados en dos grupos:
 	#zcat $inputpath/*_1.fastq.gz |gzip > $outtrimmed/$s.R1.fq.gz
-	zcat $inputpath/*_001.fastq.gz |gzip > $outtrimmed/$s.R1.fq.gz	
+	zcat $inputpath/*_*_*_001.fastq.gz |gzip > $outtrimmed/$s.R1.fq.gz	
 	#zcat $inputpath/*_2.fastq.gz |gzip > $outtrimmed/$s.R2.fq.gz
-	zcat $inputpath/*_002.fastq.gz |gzip > $outtrimmed/$s.R2.fq.gz
+	zcat $inputpath/_*_*_*_002.fastq.gz |gzip > $outtrimmed/$s.R2.fq.gz
 
 	##Trimmed y eliminacion de lecturas con baja calidad
 	fastp --disable_adapter_trimming -i $outtrimmed/$s.R1.fq.gz -I $outtrimmed/$s.R2.fq.gz -o $outtrimmed/$s.R1.trimmed.fq.gz \
