@@ -8,24 +8,31 @@ def get_args():
     parser.add_argument('--inputfile','-f',dest = 'inputfile',help='SRA list with metadata in tsv format')
     parser.add_argument('--outpath','-o',dest = 'outpath',help='root for the directory organization of sampes')
     parser.add_argument('--runidpath','-r',dest = 'runidpath',help='root for the directory of RUN accession')
-    
+
+    parser.add_argument('--paired', dest='paired', action='store_true')
+    parser.add_argument('--no-paired', dest='paired', action='store_false')
+    parser.set_defaults(paired=True)
 
     args = parser.parse_args()
 
     ifile = args.inputfile
     opath = args.outpath
     runidpath = args.runidpath
+    paired = args.paired
 
-    return(ifile,opath,runidpath)
+    return(ifile,opath,runidpath,paired)
 
-def makesyml(ifile,opath,runidpath):
+def makesyml(ifile,opath,runidpath,paired=True):
     df = pd.read_csv(ifile,sep = '\t')
     samplenames = df.sample_accession
     mapa = {}
     for s in samplenames:
         mapa.update({s:df[df.sample_accession == s].run_accession.values})
         spath = opath+s
-        checklen = 2* len(mapa[s]) # consider foward and reveerse     
+        if(paired):
+            checklen = 2* len(mapa[s]) # consider foward and reveerse
+        else:
+            checklen = len(mapa[s]) # consider only Foward
         fastqs = []
         for runid in mapa[s]:
             fastqs  = fastqs + glob.glob(runidpath+runid+'/*.gz')
@@ -45,8 +52,8 @@ def makesyml(ifile,opath,runidpath):
             print 'sample %s do not contain all required fastq-files yet'%s
 
 def main():
-    ifile,opath,runidpath = get_args()
-    makesyml(ifile,opath,runidpath)
+    ifile,opath,runidpath,paired = get_args()
+    makesyml(ifile,opath,runidpath,paired)
 
 if __name__ == '__main__':
     main()
