@@ -99,6 +99,7 @@ def download_function(run_acc,opath,gzip = True,prefetch=False):
 def main():
     ifile,opath,download,prefetch = get_args()
     run_acc = params(ifile,opath)
+    print (download)
     if(download):
         download_function(run_acc,opath,prefetch=prefetch)
 
