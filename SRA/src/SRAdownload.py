@@ -39,7 +39,7 @@ def params(ifile,opath, Filter = True):
     query=opath+'/'+base
     os.system('pysradb srr-to-srp %s --expand --saveto %s.tsv'%(samplequery,query))
     #os.system('pysradb srr-to-srp %s --detailed --expand --saveto %s.tsv'%(samplequery,query))
-    df = pd.read_table('%s.tsv'%query)
+    df = pd.read_csv('%s.tsv'%query,sep = '\t')
     df.to_excel('%s.xlsx'%query)
   
     if(Filter):
