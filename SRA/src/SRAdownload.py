@@ -100,7 +100,6 @@ def main():
     ifile,opath,download,prefetch = get_args()
     run_acc = params(ifile,opath)
     if(download):
-        print(run_acc)
         download_function(run_acc,opath,prefetch=prefetch)
 
 if __name__ == '__main__':
