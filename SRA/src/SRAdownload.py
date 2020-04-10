@@ -27,7 +27,7 @@ def get_args():
 
     return(ifile,opath,download,prefetch)
 
-def params(ifile,opath, Filter = True):
+def params(ifile,opath, Filter = False):
     if not os.path.exists(opath):
         os.makedirs(opath   )
     base = os.path.basename(ifile)
